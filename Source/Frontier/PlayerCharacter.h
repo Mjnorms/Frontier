@@ -33,6 +33,8 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	virtual void PostInitalizeComponents();
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -48,9 +50,12 @@ protected:
 	UInputAction* JumpAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* LookAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* EquipAction;
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void EquipPressed();
 
 public:
 
@@ -69,6 +74,9 @@ private:
 
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);
+
+	UPROPERTY(VisibleAnywhere)
+	class UCombatComponent* Combat;
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 };
