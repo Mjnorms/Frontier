@@ -12,9 +12,12 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Net/UnrealNetwork.h"
+#include "Weapon/Weapon.h"
 
 
-// Sets default values
+//////////////////////////////////////////////////////////////
+// PUBLIC
 APlayerCharacter::APlayerCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -36,6 +39,22 @@ APlayerCharacter::APlayerCharacter()
 	OverheadWidget->SetupAttachment(RootComponent);
 }
 
+void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(APlayerCharacter, OverlappingWeapon, COND_OwnerOnly);
+}
+
+// Called every frame
+void APlayerCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
+//////////////////////////////////////////////////////////////
+// PROTECTED
+
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
@@ -52,15 +71,8 @@ void APlayerCharacter::BeginPlay()
 	}
 }
 
-// Called every frame
-void APlayerCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
-//////////////////////////////////////////////////////////////////////////
-// Input
+	//////////////////////////////////////////////////////////////////////////
+	// Input
 void APlayerCharacter::Move(const FInputActionValue& Value)
 {
 	// input is a Vector2D
@@ -97,6 +109,7 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
+
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -120,3 +133,21 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 }
 
+void APlayerCharacter::SetOverlappingWeapon(AWeapon* Weapon)
+{
+	if (OverlappingWeapon) OverlappingWeapon->ShowPickupWidget(false);
+	OverlappingWeapon = Weapon;
+	if (IsLocallyControlled())
+	{
+		if (OverlappingWeapon) OverlappingWeapon->ShowPickupWidget(true);
+	}
+}
+
+// Replication callbacks store and send the last value that was replicated
+// so if LastWeapon != null, then we were previously looking at a weapon
+// if we are getting the callback, then we know the value has changed (either to null or to a new weapon)
+void APlayerCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
+{
+	if (OverlappingWeapon) OverlappingWeapon->ShowPickupWidget(true);
+	if (LastWeapon) LastWeapon->ShowPickupWidget(false);
+}
