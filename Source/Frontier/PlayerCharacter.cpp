@@ -41,6 +41,8 @@ APlayerCharacter::APlayerCharacter()
 
 	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
 	Combat->SetIsReplicated(true);
+
+	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 }
 
 void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -50,7 +52,7 @@ void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME_CONDITION(APlayerCharacter, OverlappingWeapon, COND_OwnerOnly);
 }
 
-void APlayerCharacter::PostInitalizeComponents()
+void APlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
@@ -125,9 +127,40 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 
 void APlayerCharacter::EquipPressed()
 {
-	if (Combat && HasAuthority())
+	if (Combat)
 	{
-		Combat->EquipWeapon(OverlappingWeapon);
+		if (HasAuthority())
+		{
+			Combat->EquipWeapon(OverlappingWeapon);
+		}
+		else
+		{
+			ServerEquipButtonPressed();
+		}
+	}
+}
+
+void APlayerCharacter::CrouchPressed(const FInputActionValue& Value)
+{
+	if (Value[0]) // Pressed
+	{
+		Crouch();
+	}
+	else          // Released
+	{
+		UnCrouch();
+	}
+}
+
+void APlayerCharacter::AimPressed(const FInputActionValue& Value)
+{
+	if (Value[0]) // Pressed
+	{
+		Crouch();
+	}
+	else          // Released
+	{
+		UnCrouch();
 	}
 }
 
@@ -150,12 +183,23 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		//Equip
 		EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &APlayerCharacter::EquipPressed);
+
+		//Crouch
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &APlayerCharacter::CrouchPressed);
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("'%s' Failed to find an Enhanced Input component!"), *GetNameSafe(this));
 	}
 
+}
+
+void APlayerCharacter::ServerEquipButtonPressed_Implementation()
+{
+	if (Combat)
+	{
+		Combat->EquipWeapon(OverlappingWeapon);
+	}
 }
 
 void APlayerCharacter::SetOverlappingWeapon(AWeapon* Weapon)
@@ -175,4 +219,9 @@ void APlayerCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 {
 	if (OverlappingWeapon) OverlappingWeapon->ShowPickupWidget(true);
 	if (LastWeapon) LastWeapon->ShowPickupWidget(false);
+}
+
+bool APlayerCharacter::IsWeaponEquipped()
+{
+	return (Combat && Combat->EquippedWeapon);
 }

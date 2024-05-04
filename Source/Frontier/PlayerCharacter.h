@@ -33,7 +33,7 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	virtual void PostInitalizeComponents();
+	virtual void PostInitializeComponents() override;
 
 
 protected:
@@ -52,11 +52,15 @@ protected:
 	UInputAction* LookAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* EquipAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* CrouchAction;
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void EquipPressed();
-
+	void CrouchPressed(const FInputActionValue& Value);
+	void AimPressed(const FInputActionValue& Value);
+	
 public:
 
 private:
@@ -77,6 +81,11 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	class UCombatComponent* Combat;
+
+	// RPC
+	UFUNCTION(Server, Reliable)
+	void ServerEquipButtonPressed();
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
+	bool IsWeaponEquipped();
 };
