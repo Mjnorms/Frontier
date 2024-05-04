@@ -30,4 +30,6 @@ void UPlayerCharacterAnimInstance::NativeUpdateAnimation(float dt)
 	bWeaponEquipped = PlayerCharacter->IsWeaponEquipped();
 
 	bIsCrouched = PlayerCharacter->bIsCrouched;
+
+	bIsAiming = PlayerCharacter->IsAiming();
 }

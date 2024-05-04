@@ -154,13 +154,15 @@ void APlayerCharacter::CrouchPressed(const FInputActionValue& Value)
 
 void APlayerCharacter::AimPressed(const FInputActionValue& Value)
 {
+	if (!Combat) return;
+
 	if (Value[0]) // Pressed
 	{
-		Crouch();
+		Combat->SetAiming(true);
 	}
 	else          // Released
 	{
-		UnCrouch();
+		Combat->SetAiming(false);
 	}
 }
 
@@ -186,6 +188,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		//Crouch
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &APlayerCharacter::CrouchPressed);
+
+		//Aiming
+		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Triggered, this, &APlayerCharacter::AimPressed);
 	}
 	else
 	{
@@ -224,4 +229,9 @@ void APlayerCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 bool APlayerCharacter::IsWeaponEquipped()
 {
 	return (Combat && Combat->EquippedWeapon);
+}
+
+bool APlayerCharacter::IsAiming()
+{
+	return (Combat && Combat->bAiming);
 }

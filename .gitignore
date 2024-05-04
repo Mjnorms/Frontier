@@ -70,5 +70,8 @@ Saved/*
 Intermediate/*
 Plugins/*/Intermediate/*
 
+# Temp Live Coding files
+enc_temp_folder/*
+
 # Cache files for the editor to use
 DerivedDataCache/*
