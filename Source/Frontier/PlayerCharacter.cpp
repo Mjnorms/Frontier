@@ -43,6 +43,10 @@ APlayerCharacter::APlayerCharacter()
 	Combat->SetIsReplicated(true);
 
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
+
+	// Disable character collision with the camera
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 }
 
 void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -154,7 +158,7 @@ void APlayerCharacter::CrouchPressed(const FInputActionValue& Value)
 
 void APlayerCharacter::AimPressed(const FInputActionValue& Value)
 {
-	if (!Combat) return;
+	if (!Combat || !Combat->EquippedWeapon) return;
 
 	if (Value[0]) // Pressed
 	{
