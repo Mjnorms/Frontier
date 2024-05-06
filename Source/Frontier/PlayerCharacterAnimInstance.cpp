@@ -5,6 +5,7 @@
 #include "PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Frontier/Weapon/Weapon.h"
 
 void UPlayerCharacterAnimInstance::NativeInitializeAnimation()
 {
@@ -29,6 +30,8 @@ void UPlayerCharacterAnimInstance::NativeUpdateAnimation(float dt)
 
 	bWeaponEquipped = PlayerCharacter->IsWeaponEquipped();
 
+	EquippedWeapon = PlayerCharacter->GetEquippedWeapon();
+
 	bIsCrouched = PlayerCharacter->bIsCrouched;
 
 	bIsAiming = PlayerCharacter->IsAiming();
@@ -49,4 +52,15 @@ void UPlayerCharacterAnimInstance::NativeUpdateAnimation(float dt)
 
 	AO_Yaw = PlayerCharacter->GetAO_Yaw();
 	AO_Pitch = PlayerCharacter->GetAO_Pitch();
+
+	// Connect left hand to the gun at the socket
+	if (bWeaponEquipped && EquippedWeapon && EquippedWeapon->GetWeaponMesh() && PlayerCharacter->GetMesh())
+	{
+		LeftHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("LeftHandSocket"), ERelativeTransformSpace::RTS_World);
+		FVector OutPos;
+		FRotator OutRot;
+		PlayerCharacter->GetMesh()->TransformToBoneSpace(FName("hand_r"), LeftHandTransform.GetLocation(), FRotator::ZeroRotator, OutPos, OutRot);
+		LeftHandTransform.SetLocation(OutPos);
+		LeftHandTransform.SetRotation(FQuat(OutRot));
+	}
 }
