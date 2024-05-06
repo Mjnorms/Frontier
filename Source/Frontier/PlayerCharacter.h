@@ -63,6 +63,7 @@ protected:
 	void CrouchPressed(const FInputActionValue& Value);
 	void AimPressed(const FInputActionValue& Value);
 	
+	void AimOffset(float dt);
 public:
 
 private:
@@ -87,8 +88,15 @@ private:
 	// RPC
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed();
+
+	// Aim Offset
+	float AO_Pitch;
+	float AO_Yaw;
+	FRotator StartingAimRotation;
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();
 	bool IsAiming();
+	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; }
+	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; }
 };
