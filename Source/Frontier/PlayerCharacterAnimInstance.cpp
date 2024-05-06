@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "PlayerCharacterAnimInstance.h"
-#include "PlayerCharacter.h"
+#include "Frontier/Weapon/Weapon.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Frontier/Weapon/Weapon.h"
+#include "PlayerCharacterAnimInstance.h"
+#include "PlayerCharacter.h"
 
 void UPlayerCharacterAnimInstance::NativeInitializeAnimation()
 {
@@ -23,18 +23,13 @@ void UPlayerCharacterAnimInstance::NativeUpdateAnimation(float dt)
 	Speed = Velocity.Length();
 
 	UCharacterMovementComponent* PlayerCharacterMvmt = PlayerCharacter->GetCharacterMovement();
-
 	bIsInAir = PlayerCharacterMvmt->IsFalling();
-
 	bIsAccelerating = PlayerCharacterMvmt->GetCurrentAcceleration().Length() > 0.f;
-
 	bWeaponEquipped = PlayerCharacter->IsWeaponEquipped();
-
 	EquippedWeapon = PlayerCharacter->GetEquippedWeapon();
-
 	bIsCrouched = PlayerCharacter->bIsCrouched;
-
 	bIsAiming = PlayerCharacter->IsAiming();
+	TurningInPlace = PlayerCharacter->GetTurningInPlace();
 
 	// Offset Yaw + Lean for strafing
 	FRotator AimRotation = PlayerCharacter->GetBaseAimRotation();
@@ -53,7 +48,7 @@ void UPlayerCharacterAnimInstance::NativeUpdateAnimation(float dt)
 	AO_Yaw = PlayerCharacter->GetAO_Yaw();
 	AO_Pitch = PlayerCharacter->GetAO_Pitch();
 
-	// Connect left hand to the gun at the socket
+	// Connect left hand to the gun at the socket 
 	if (bWeaponEquipped && EquippedWeapon && EquippedWeapon->GetWeaponMesh() && PlayerCharacter->GetMesh())
 	{
 		LeftHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("LeftHandSocket"), ERelativeTransformSpace::RTS_World);

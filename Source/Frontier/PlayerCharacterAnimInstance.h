@@ -2,8 +2,10 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "CoreMinimal.h"
+#include "Frontier/Types/TurningInPlace.h"
+
 #include "PlayerCharacterAnimInstance.generated.h"
 
 /**
@@ -54,12 +56,15 @@ private:
 	FRotator CharacterRotation;
 	FRotator DeltaRotation;
 
-
 	UPROPERTY(BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	float AO_Yaw;
 	UPROPERTY(BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	float AO_Pitch;
 
+	// FABRIK
 	UPROPERTY(BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
-	FTransform LeftHandTransform; 
+	FTransform LeftHandTransform;
+
+	UPROPERTY(BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	ETurningInPlace TurningInPlace;
 };

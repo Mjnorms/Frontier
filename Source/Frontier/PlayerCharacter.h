@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Frontier/Types/TurningInPlace.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "Interfaces/OnlineSessionInterface.h"
@@ -22,24 +23,19 @@ class FRONTIER_API APlayerCharacter : public ACharacter
 {
 	GENERATED_BODY()
 public:
-	// Sets default values for this character's properties
 	APlayerCharacter();
 
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;			// bind inputs
 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;	// bind replicated props
 
 	virtual void PostInitializeComponents() override;
 
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
 
 	// Input
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
@@ -56,7 +52,6 @@ protected:
 	UInputAction* CrouchAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* AimAction;
-
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void EquipPressed();
@@ -64,7 +59,6 @@ protected:
 	void AimPressed(const FInputActionValue& Value);
 	
 	void AimOffset(float dt);
-public:
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
@@ -92,12 +86,19 @@ private:
 	// Aim Offset
 	float AO_Pitch;
 	float AO_Yaw;
+	float Interp_AO_Yaw;
 	FRotator StartingAimRotation;
-public:
+
+	// Turning the character when standing still but looking around
+	ETurningInPlace TurningInPlace;
+	void TurnInPlace(float dt);
+
+public:  // Getters + Setters
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();
 	bool IsAiming();
 	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; }
 	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; }
 	AWeapon* GetEquippedWeapon();
+	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
 };
