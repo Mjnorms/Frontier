@@ -33,6 +33,7 @@ public:
 
 	virtual void PostInitializeComponents() override;
 
+	void PlayFireMontage(bool bAiming);
 
 protected:
 	virtual void BeginPlay() override;
@@ -52,11 +53,15 @@ protected:
 	UInputAction* CrouchAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* AimAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+
+	UInputAction* FireAction;
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void EquipPressed();
 	void CrouchPressed(const FInputActionValue& Value);
 	void AimPressed(const FInputActionValue& Value);
+	void FirePressed(const FInputActionValue& Value);
 	
 	void AimOffset(float dt);
 
@@ -93,6 +98,8 @@ private:
 	ETurningInPlace TurningInPlace;
 	void TurnInPlace(float dt);
 
+	UPROPERTY(EditAnywhere, Category = Combat)
+	class UAnimMontage* FireWeaponMontage;
 public:  // Getters + Setters
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();

@@ -16,6 +16,7 @@
 #include "InputActionValue.h"
 #include "Net/UnrealNetwork.h"
 #include "Weapon/Weapon.h"
+#include "PlayerCharacterAnimInstance.h"
 
 
 //////////////////////////////////////////////////////////////
@@ -68,6 +69,20 @@ void APlayerCharacter::PostInitializeComponents()
 	if (Combat)
 	{
 		Combat->PlayerCharacter = this;
+	}
+}
+
+void APlayerCharacter::PlayFireMontage(bool bAiming)
+{
+	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && FireWeaponMontage)
+	{
+		AnimInstance->Montage_Play(FireWeaponMontage);
+		FName SectionName;
+		SectionName = bAiming ? FName("RifleAim") : FName("RifleHip");
+		AnimInstance->Montage_JumpToSection(SectionName);
 	}
 }
 
@@ -176,6 +191,20 @@ void APlayerCharacter::AimPressed(const FInputActionValue& Value)
 	}
 }
 
+void APlayerCharacter::FirePressed(const FInputActionValue& Value)
+{
+	if (!Combat || !Combat->EquippedWeapon) return;
+
+	if (Value[0]) // Pressed
+	{
+		Combat->SetFiring(true);
+	}
+	else          // Released
+	{
+		Combat->SetFiring(false);
+	}
+}
+
 void APlayerCharacter::AimOffset(float dt)
 {
 	if (Combat && Combat->EquippedWeapon == nullptr) return;
@@ -261,6 +290,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		//Aiming
 		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Triggered, this, &APlayerCharacter::AimPressed);
+
+		//Firing
+		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &APlayerCharacter::FirePressed);
 	}
 	else
 	{

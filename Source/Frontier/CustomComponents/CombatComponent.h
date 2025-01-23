@@ -30,6 +30,8 @@ protected:
 
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
+
+	void SetFiring(bool bIsFiring);
 private:
 	APlayerCharacter* PlayerCharacter;
 
@@ -38,6 +40,8 @@ private:
 
 	UPROPERTY(Replicated)
 	bool bAiming;
+
+	bool bFiring;
 
 	UPROPERTY(EditAnywhere)
 	float BaseWalkSpeed = 600.f;
