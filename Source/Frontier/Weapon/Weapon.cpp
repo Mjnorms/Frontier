@@ -6,6 +6,8 @@
 #include "Components/WidgetComponent.h"
 #include "Frontier/PlayerCharacter.h"
 #include "Net/UnrealNetwork.h"
+#include "Animation/AnimationAsset.h"
+#include "Components/SkeletalMeshComponent.h"
 
 
 //////////////////////////////////////////////////////////////
@@ -52,6 +54,14 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 void AWeapon::ShowPickupWidget(bool bShowWidget)
 {
 	if (PickupWidget) PickupWidget->SetVisibility(bShowWidget);
+}
+
+void AWeapon::Fire()
+{
+	if (FireAnimation)
+	{
+		WeaponMesh->PlayAnimation(FireAnimation, false);
+	}
 }
 
 //////////////////////////////////////////////////////////////

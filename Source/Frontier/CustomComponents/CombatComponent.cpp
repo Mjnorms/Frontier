@@ -55,10 +55,25 @@ void UCombatComponent::OnRep_EquippedWeapon()
 void UCombatComponent::SetFiring(bool bIsFiring)
 {
 	bFiring = bIsFiring;
-	if (PlayerCharacter && bIsFiring)
+	if (bFiring)
+	{
+		ServerFire();
+	}
+}
+
+void UCombatComponent::MulticastFire_Implementation()
+{
+	if (EquippedWeapon == nullptr) return;
+	if (PlayerCharacter)
 	{
 		PlayerCharacter->PlayFireMontage(bAiming);
+		EquippedWeapon->Fire();
 	}
+}
+
+void UCombatComponent::ServerFire_Implementation()
+{
+	MulticastFire();
 }
 
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

@@ -32,6 +32,12 @@ protected:
 	void OnRep_EquippedWeapon();
 
 	void SetFiring(bool bIsFiring);
+
+	UFUNCTION(Server, Reliable)
+	void ServerFire();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastFire();
 private:
 	APlayerCharacter* PlayerCharacter;
 
