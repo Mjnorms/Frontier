@@ -58,6 +58,8 @@ private:
 	UPROPERTY(EditAnywhere)
 	float AimWalkSpeed = 450.f;
 
+	FVector HitTarget;
+
 public:	
 
 		

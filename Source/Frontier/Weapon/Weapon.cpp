@@ -56,7 +56,7 @@ void AWeapon::ShowPickupWidget(bool bShowWidget)
 	if (PickupWidget) PickupWidget->SetVisibility(bShowWidget);
 }
 
-void AWeapon::Fire()
+void AWeapon::Fire(const FVector& HitTarget)
 {
 	if (FireAnimation)
 	{
