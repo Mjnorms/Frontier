@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Projectile.generated.h"
 
+
 UCLASS()
 class FRONTIER_API AProjectile : public AActor
 {
@@ -24,4 +25,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	class UProjectileMovementComponent* ProjectileMovementComponent;
+
+
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* Tracer;
+	class UParticleSystemComponent* TracerComponent;
 };
