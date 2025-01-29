@@ -6,6 +6,28 @@
 #include "GameFramework/HUD.h"
 #include "PlayerHUD.generated.h"
 
+USTRUCT(BlueprintType)
+struct FHUDPackage
+{
+	GENERATED_BODY()
+	
+	FHUDPackage()
+	{
+		CrosshairsCenter = nullptr;
+		CrosshairsLeft = nullptr;
+		CrosshairsRight = nullptr;
+		CrosshairsTop = nullptr;
+		CrosshairsBottom = nullptr;
+	}
+
+	class UTexture2D* CrosshairsCenter;
+	class UTexture2D* CrosshairsLeft;
+	class UTexture2D* CrosshairsRight;
+	class UTexture2D* CrosshairsTop;
+	class UTexture2D* CrosshairsBottom;
+
+};
+
 /**
  * 
  */
@@ -13,5 +35,16 @@ UCLASS()
 class FRONTIER_API APlayerHUD : public AHUD
 {
 	GENERATED_BODY()
+
+public:
+	virtual void DrawHUD() override;
+
+private:
+	void DrawCrosshair(UTexture2D* Texture, const FVector2D& ViewportCenter);
 	
+private:
+	FHUDPackage HUDPackage;
+
+public:
+	FORCEINLINE void SetHUDPackage(const FHUDPackage& Package) { HUDPackage = Package; }
 };

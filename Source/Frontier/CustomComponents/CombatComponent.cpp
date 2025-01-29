@@ -6,6 +6,8 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Frontier/Weapon/Weapon.h"
 #include "Frontier/PlayerCharacter.h"
+#include "Frontier/PlayerController/FrontierPlayerController.h"
+#include "Frontier/HUD/PlayerHUD.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
@@ -23,6 +25,12 @@ UCombatComponent::UCombatComponent()
 void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	SetHUDCrosshairs(DeltaTime);
 }
 
 void UCombatComponent::SetAiming(bool bIsAiming)
@@ -108,6 +116,29 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 	}
 }
 
+void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
+{
+	if (PlayerCharacter == nullptr) return;
+	PlayerController = PlayerController == nullptr ? Cast<APlayerController>(PlayerCharacter->Controller) : PlayerController;
+	if (PlayerController)
+	{
+		HUD = HUD == nullptr ? Cast<APlayerHUD>(PlayerController->GetHUD()) : HUD;
+		if (HUD)
+		{
+			FHUDPackage NewHUDPackage;
+			if (EquippedWeapon)
+			{
+				NewHUDPackage.CrosshairsCenter = EquippedWeapon->CrosshairsCenter;
+				NewHUDPackage.CrosshairsLeft = EquippedWeapon->CrosshairsLeft;
+				NewHUDPackage.CrosshairsRight = EquippedWeapon->CrosshairsRight;
+				NewHUDPackage.CrosshairsBottom = EquippedWeapon->CrosshairsBottom;
+				NewHUDPackage.CrosshairsTop = EquippedWeapon->CrosshairsTop;
+			}
+			HUD->SetHUDPackage(NewHUDPackage);
+		}
+	}
+}
+
 void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
 	if (EquippedWeapon == nullptr) return;
@@ -121,11 +152,6 @@ void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& T
 void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
 	MulticastFire(TraceHitTarget);
-}
-
-void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

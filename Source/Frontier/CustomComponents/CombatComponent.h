@@ -4,12 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Frontier/PlayerController/FrontierPlayerController.h"
+#include "Frontier/HUD/PlayerHUD.h"
 #include "CombatComponent.generated.h"
 
 #define TRACE_LENGTH 1000000.f;
 
-class AWeapon;
 class APlayerCharacter;
+class AWeapon;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class FRONTIER_API UCombatComponent : public UActorComponent
@@ -21,7 +23,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	void EquipWeapon(AWeapon* WeaponToEquip);
+	void EquipWeapon(class AWeapon* WeaponToEquip);
 
 protected:
 	virtual void BeginPlay() override;
@@ -42,8 +44,12 @@ protected:
 	void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
 
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
+
+	void SetHUDCrosshairs(float DeltaTime);
 private:
 	APlayerCharacter* PlayerCharacter;
+	class APlayerController* PlayerController;
+	class APlayerHUD* HUD;
 
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 	AWeapon* EquippedWeapon;
