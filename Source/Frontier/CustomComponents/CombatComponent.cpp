@@ -134,6 +134,34 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 				NewHUDPackage.CrosshairsBottom = EquippedWeapon->CrosshairsBottom;
 				NewHUDPackage.CrosshairsTop = EquippedWeapon->CrosshairsTop;
 			}
+			// Calculate crosshair spread    [0, 600] -> [0, 1]
+			FVector2D WalkSpeedRange;
+			FVector2D VelocityMultiplierRange;
+			if (PlayerCharacter->bIsCrouched) //crouching
+			{
+				WalkSpeedRange = FVector2D(0.f, PlayerCharacter->GetCharacterMovement()->MaxWalkSpeedCrouched);
+				VelocityMultiplierRange = FVector2D(0.f, 0.5f);
+			}
+			else // walking
+			{
+				WalkSpeedRange = FVector2D(0.f, PlayerCharacter->GetCharacterMovement()->MaxWalkSpeed);
+				VelocityMultiplierRange = FVector2D(0.f, 1.f);
+			}
+			FVector Velocity = PlayerCharacter->GetVelocity();
+			Velocity.Z = 0.f;
+			CrosshairVelocityFactor = FMath::GetMappedRangeValueClamped(WalkSpeedRange, VelocityMultiplierRange, Velocity.Size());
+
+			// Jumping / Falling
+			if (PlayerCharacter->GetCharacterMovement()->IsFalling())
+			{
+				CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, 2.25f, DeltaTime, 2.25f);
+			}
+			else
+			{
+				CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, 0.f, DeltaTime, 30.f);
+			}
+
+			NewHUDPackage.CrosshairSpread = CrosshairVelocityFactor + CrosshairInAirFactor;
 			HUD->SetHUDPackage(NewHUDPackage);
 		}
 	}

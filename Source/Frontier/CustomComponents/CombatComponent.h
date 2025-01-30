@@ -64,6 +64,12 @@ private:
 	UPROPERTY(EditAnywhere)
 	float AimWalkSpeed = 450.f;
 
+	/**
+	* HUD and crosshairs
+	*/
+	float CrosshairVelocityFactor;
+	float CrosshairInAirFactor;
+
 public:	
 
 		
