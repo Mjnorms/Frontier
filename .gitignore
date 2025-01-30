@@ -77,6 +77,4 @@ enc_temp_folder/*
 DerivedDataCache/*
 
 #Extra Packages
-Assets/MilitaryCharDark/*
-Assets/MilitaryCharSilver/*
-Assets/MilitaryWeapDark/*
+ExtraPacks/*
