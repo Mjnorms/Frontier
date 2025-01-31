@@ -46,6 +46,7 @@ protected:
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
 
 	void SetHUDCrosshairs(float DeltaTime);
+	void InterpFOV(float DeltaTime);
 private:
 	APlayerCharacter* PlayerCharacter;
 	class APlayerController* PlayerController;
@@ -54,22 +55,27 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 	AWeapon* EquippedWeapon;
 
+	// aiming
 	UPROPERTY(Replicated)
 	bool bAiming;
+	float DefaultFOV;
+	float CurrentFOV;
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float UnZoomInterpSpeed = 20.f;
 
+	// firing
 	bool bFiring;
 
+	// walk speed
 	UPROPERTY(EditAnywhere)
 	float BaseWalkSpeed = 600.f;
 	UPROPERTY(EditAnywhere)
 	float AimWalkSpeed = 450.f;
 
-	/**
-	* HUD and crosshairs
-	*/
+	
+	// HUD and crosshairs
 	float CrosshairVelocityFactor;
 	float CrosshairInAirFactor;
-
 	FVector HitTarget;
 
 public:	

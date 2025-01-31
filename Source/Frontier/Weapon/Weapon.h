@@ -31,7 +31,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UFUNCTION()
+	UFUNCTION() 
 	virtual void OnSphereOverlap(
 		UPrimitiveComponent* OverlappedComponent,
 		AActor* OtherActor,
@@ -81,12 +81,17 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Crosshairs")
 	class UTexture2D* CrosshairsBottom;
 
+	// Aiming FOV
+	UPROPERTY(EditAnywhere, Category = "Aiming")
+	float ZoomedFOV = 30.f;
+	UPROPERTY(EditAnywhere, Category = "Aiming")
+	float ZoomInterpSpeed = 20.f;
+
 // Getters/Setters
 public:
 	void SetWeaponState(EWeaponState State);
 
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }
-
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
 
 };
