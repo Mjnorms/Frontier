@@ -18,6 +18,8 @@ struct FHUDPackage
 		CrosshairsRight = nullptr;
 		CrosshairsTop = nullptr;
 		CrosshairsBottom = nullptr;
+		CrosshairSpread = 0.f;
+		CrosshairColor = FLinearColor::White;
 	}
 
 	class UTexture2D* CrosshairsCenter;
@@ -26,6 +28,7 @@ struct FHUDPackage
 	class UTexture2D* CrosshairsTop;
 	class UTexture2D* CrosshairsBottom;
 	float CrosshairSpread;
+	FLinearColor CrosshairColor;
 };
 
 /**
@@ -40,7 +43,7 @@ public:
 	virtual void DrawHUD() override;
 
 private:
-	void DrawCrosshair(UTexture2D* Texture, const FVector2D& ViewportCenter, FVector2D Spread);
+	void DrawCrosshair(UTexture2D* Texture, const FVector2D& ViewportCenter, FVector2D Spread, FLinearColor Color);
 	
 private:
 	FHUDPackage HUDPackage;

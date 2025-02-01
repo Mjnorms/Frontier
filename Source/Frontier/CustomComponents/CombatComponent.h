@@ -74,6 +74,7 @@ private:
 
 	
 	// HUD and crosshairs
+	FHUDPackage NewHUDPackage;
 	float CrosshairVelocityFactor;
 	float CrosshairInAirFactor;
 	float CrosshairAimFactor;

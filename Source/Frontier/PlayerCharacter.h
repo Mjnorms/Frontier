@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "Interfaces/OnlineSessionInterface.h"
+#include "Frontier/Interfaces/InteractWithCrosshairInterface.h"
 
 #include "PlayerCharacter.generated.h"
 
@@ -19,7 +20,7 @@ struct FInputActionValue;
 
 
 UCLASS()
-class FRONTIER_API APlayerCharacter : public ACharacter
+class FRONTIER_API APlayerCharacter : public ACharacter, public IInteractWithCrosshairInterface
 {
 	GENERATED_BODY()
 public:
