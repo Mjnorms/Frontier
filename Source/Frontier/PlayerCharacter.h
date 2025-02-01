@@ -94,6 +94,9 @@ private:
 	float AO_Yaw;
 	float Interp_AO_Yaw;
 	FRotator StartingAimRotation;
+	void HideCharacterIfCameraClose();
+	UPROPERTY(EditAnywhere, Category = Camera)
+	float MinCameraDistance = 150.f;
 
 	// Turning the character when standing still but looking around
 	ETurningInPlace TurningInPlace;
@@ -101,6 +104,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage* FireWeaponMontage;
+
 public:  // Getters + Setters
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();

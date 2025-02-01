@@ -18,7 +18,7 @@
 UCombatComponent::UCombatComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.
-	PrimaryComponentTick.bCanEverTick = true;
+PrimaryComponentTick.bCanEverTick = true;
 
 }
 
@@ -115,7 +115,25 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 
 	if (bScreenToWorld)
 	{
+		bool AimingDebugDraw = false;
 		FVector Start = CrosshairWorldPos;
+		/*
+		* POTENTIAL ALTERNATIVE TO MAGIC NUMBER FOR MOVING TRACE FORWARD
+		if (EquippedWeapon && EquippedWeapon->GetWeaponMesh()->DoesSocketExist(FName("MuzzleFlash")))
+		{
+			FVector MuzzleLocation = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("MuzzleFlash")).GetLocation();
+			float DistanceToMuzzle = (MuzzleLocation - Start).Size();
+			Start += CrosshairWorldDir * DistanceToMuzzle;
+		}
+		*/
+		if (PlayerCharacter)
+		{
+			// this is problematic bc player location is at the character's feet... different distance when looking up or down
+			float DistanceToCharacter = (PlayerCharacter->GetActorLocation() - Start).Size();
+			Start += CrosshairWorldDir * (DistanceToCharacter + 60.f);
+		}
+		if (AimingDebugDraw) DrawDebugSphere(GetWorld(), Start, 16.f, 12, FColor::Red, false);
+
 		FVector End = Start + CrosshairWorldDir * TRACE_LENGTH;
 		GetWorld()->LineTraceSingleByChannel(
 			TraceHitResult,
@@ -127,7 +145,7 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 		{
 			TraceHitResult.ImpactPoint = End;
 		}
-		else
+		if (AimingDebugDraw)
 		{
 			DrawDebugSphere(
 				GetWorld(),
