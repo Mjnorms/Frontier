@@ -36,6 +36,11 @@ public:
 
 	void PlayFireMontage(bool bAiming);
 
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastHit();
+
+	void PlayHitReactMontage();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -103,7 +108,10 @@ private:
 	void TurnInPlace(float dt);
 
 	UPROPERTY(EditAnywhere, Category = Combat)
-	class UAnimMontage* FireWeaponMontage;
+	class UAnimMontage* FireWeaponMontage;	
+	
+	UPROPERTY(EditAnywhere, Category = Combat)
+	class UAnimMontage* HitReactMontage;
 
 public:  // Getters + Setters
 	void SetOverlappingWeapon(AWeapon* Weapon);
