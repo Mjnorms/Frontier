@@ -13,13 +13,13 @@
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "Camera/CameraComponent.h"
+#include "TimerManager.h"
 
 
 UCombatComponent::UCombatComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.
-PrimaryComponentTick.bCanEverTick = true;
-
+	PrimaryComponentTick.bCanEverTick = true;
 }
 
 
@@ -78,21 +78,6 @@ void UCombatComponent::OnRep_EquippedWeapon()
 	{
 		PlayerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 		PlayerCharacter->bUseControllerRotationYaw = true;
-	}
-}
-
-void UCombatComponent::SetFiring(bool bIsFiring)
-{
-	bFiring = bIsFiring;
-	if (bFiring)
-	{
-		FHitResult HitResult;
-		TraceUnderCrosshairs(HitResult);
-		ServerFire(HitResult.ImpactPoint);
-	}
-	if (EquippedWeapon)
-	{
-		CrosshairShootingFactor = .75f;
 	}
 }
 
@@ -247,6 +232,41 @@ void UCombatComponent::InterpFOV(float DeltaTime)
 	{
 		PlayerCharacter->GetFollowCamera()->SetFieldOfView(CurrentFOV);
 	}
+}
+
+void UCombatComponent::SetFiring(bool bIsFiring)
+{
+	if (EquippedWeapon == nullptr) return;
+	bFiring = bIsFiring;
+	if (bFiring && !bJustFired)
+		Fire();
+
+	if (!bFiring && !EquippedWeapon->bAutomatic)
+	{
+		if (!GetWorld()->GetTimerManager().IsTimerActive(FireTimer))
+		{
+			bJustFired = false;
+		}
+	}
+}
+
+void UCombatComponent::Fire()
+{
+	ServerFire(HitTarget);
+	if (EquippedWeapon) CrosshairShootingFactor = .75f;
+	StartFireTimer();
+	bJustFired = true;
+}
+
+void UCombatComponent::StartFireTimer()
+{
+	if (EquippedWeapon == nullptr || PlayerCharacter == nullptr) return;
+	PlayerCharacter->GetWorldTimerManager().SetTimer(FireTimer, this, &UCombatComponent::FireTimerFinished, EquippedWeapon->FireDelay);
+}
+
+void UCombatComponent::FireTimerFinished()
+{
+	if (EquippedWeapon != nullptr && EquippedWeapon->bAutomatic) bJustFired = false;
 }
 
 void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)

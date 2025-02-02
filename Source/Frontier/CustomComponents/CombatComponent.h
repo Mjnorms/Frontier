@@ -37,6 +37,8 @@ protected:
 
 	void SetFiring(bool bIsFiring);
 
+	void Fire();
+
 	UFUNCTION(Server, Reliable)
 	void ServerFire(const FVector_NetQuantize& TraceHitTarget);
 
@@ -65,6 +67,10 @@ private:
 
 	// firing
 	bool bFiring;
+	FTimerHandle FireTimer;
+	void StartFireTimer();
+	void FireTimerFinished();
+	bool bJustFired = false;
 
 	// walk speed
 	UPROPERTY(EditAnywhere)

@@ -87,6 +87,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Aiming")
 	float ZoomInterpSpeed = 20.f;
 
+	// Firing Timing
+	UPROPERTY(EditAnywhere, Category = "FiringTiming")
+	float FireDelay = 0.35f;
+	UPROPERTY(EditAnywhere, Category = "FiringTiming")
+	bool bAutomatic = true;
+
 // Getters/Setters
 public:
 	void SetWeaponState(EWeaponState State);
