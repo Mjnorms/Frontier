@@ -37,8 +37,9 @@ public:
 	void PlayFireMontage(bool bAiming);
 	void PlayHitReactMontage();
 	void PlayElimMontage();
-	UFUNCTION(NetMulticast, Reliable)
 	void Elim();
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiCastElim();
 
 protected:
 	virtual void BeginPlay() override;
@@ -126,9 +127,13 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_Health, VisibleAnywhere, Category = "Player Stats")
 	float Health = 100.f;
 	bool bElimd = false;
+	UPROPERTY(EditDefaultsOnly)
+	float ElimDelay = 3.f;
+	FTimerHandle ElimTimer;
 	UFUNCTION()
 	void OnRep_Health();
 	void UpdateHUDHealth();
+	void ElimTimerFinished();
 
 public:  // Getters + Setters
 	void SetOverlappingWeapon(AWeapon* Weapon);

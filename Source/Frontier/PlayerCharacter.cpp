@@ -20,6 +20,7 @@
 #include "Frontier/Frontier.h"
 #include "Frontier/PlayerController/FrontierPlayerController.h"
 #include "Frontier/GameMode/BlasterGameMode.h"
+#include "TimerManager.h"
 
 
 //////////////////////////////////////////////////////////////
@@ -94,7 +95,7 @@ void APlayerCharacter::PlayFireMontage(bool bAiming)
 
 void APlayerCharacter::PlayHitReactMontage()
 {
-	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
+	if (bElimd || Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && HitReactMontage)
@@ -116,10 +117,25 @@ void APlayerCharacter::PlayElimMontage()
 	}
 }
 
-void APlayerCharacter::Elim_Implementation()
+void APlayerCharacter::Elim()
+{
+	MultiCastElim();
+	GetWorldTimerManager().SetTimer(ElimTimer, this, &APlayerCharacter::ElimTimerFinished, ElimDelay);
+}
+
+void APlayerCharacter::MultiCastElim_Implementation()
 {
 	bElimd = true;
 	PlayElimMontage();
+}
+
+void APlayerCharacter::ElimTimerFinished()
+{
+	ABlasterGameMode* BlasterGameMode = GetWorld()->GetAuthGameMode<ABlasterGameMode>();
+	if (BlasterGameMode)
+	{
+		BlasterGameMode->RequestRespawn(this, Controller);
+	}
 }
 
 // Called every frame

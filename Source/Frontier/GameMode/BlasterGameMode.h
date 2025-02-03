@@ -16,4 +16,5 @@ class FRONTIER_API ABlasterGameMode : public AGameMode
 	
 public:
 	virtual void PlayerEliminated(class APlayerCharacter* ElimdCharacter, class AFrontierPlayerController* VictimController, AFrontierPlayerController* AttackerController);
+	virtual void RequestRespawn(class ACharacter* ElimdCharacter, AController* ElimdController);
 };
