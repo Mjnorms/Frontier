@@ -13,5 +13,15 @@ UCLASS()
 class FRONTIER_API AFrontierPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
+
+private:
+	class APlayerHUD* PlayerHUD;
+
+
+protected:
+	virtual void BeginPlay() override;
+
+public:
+	void SetHUDHealth(float Health, float MaxHealth);
+
 };

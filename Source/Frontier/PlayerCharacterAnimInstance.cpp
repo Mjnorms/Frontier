@@ -30,6 +30,7 @@ void UPlayerCharacterAnimInstance::NativeUpdateAnimation(float dt)
 	bIsCrouched = PlayerCharacter->bIsCrouched;
 	bIsAiming = PlayerCharacter->IsAiming();
 	TurningInPlace = PlayerCharacter->GetTurningInPlace();
+	bElimd = PlayerCharacter->IsElimd();
 
 	// Offset Yaw + Lean for strafing
 	FRotator AimRotation = PlayerCharacter->GetBaseAimRotation();

@@ -18,6 +18,8 @@
 #include "Weapon/Weapon.h"
 #include "PlayerCharacterAnimInstance.h"
 #include "Frontier/Frontier.h"
+#include "Frontier/PlayerController/FrontierPlayerController.h"
+#include "Frontier/GameMode/BlasterGameMode.h"
 
 
 //////////////////////////////////////////////////////////////
@@ -63,6 +65,7 @@ void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(APlayerCharacter, OverlappingWeapon, COND_OwnerOnly);
+	DOREPLIFETIME(APlayerCharacter, Health);
 }
 
 void APlayerCharacter::PostInitializeComponents()
@@ -89,11 +92,6 @@ void APlayerCharacter::PlayFireMontage(bool bAiming)
 	}
 }
 
-void APlayerCharacter::MulticastHit_Implementation()
-{
-	PlayHitReactMontage();
-}
-
 void APlayerCharacter::PlayHitReactMontage()
 {
 	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
@@ -107,6 +105,21 @@ void APlayerCharacter::PlayHitReactMontage()
 		SectionName = FName("FromFront");
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
+}
+
+void APlayerCharacter::PlayElimMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && ElimMontage)
+	{
+		AnimInstance->Montage_Play(ElimMontage);
+	}
+}
+
+void APlayerCharacter::Elim_Implementation()
+{
+	bElimd = true;
+	PlayElimMontage();
 }
 
 // Called every frame
@@ -125,19 +138,30 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	// Add input mapping context
-	APlayerController* PlayerController = Cast<APlayerController>(GetController());
-	if (PlayerController)
+	InitControllerMappingContext();
+	UpdateHUDHealth();
+
+	if (HasAuthority())
 	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		OnTakeAnyDamage.AddDynamic(this, &APlayerCharacter::ReceiveDamage);
+	}
+}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Input
+void APlayerCharacter::InitControllerMappingContext()
+{
+	FrontierPlayerController = FrontierPlayerController == nullptr ? Cast<AFrontierPlayerController>(GetController()) : FrontierPlayerController;
+	if (FrontierPlayerController)
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(FrontierPlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(PlayerMappingContext, 0);
 		}
 	}
 }
 
-	//////////////////////////////////////////////////////////////////////////
-	// Input
 void APlayerCharacter::Move(const FInputActionValue& Value)
 {
 	// input is a Vector2D
@@ -268,6 +292,7 @@ void APlayerCharacter::AimOffset(float dt)
 	}
 }
 
+
 void APlayerCharacter::HideCharacterIfCameraClose()
 {
 	if (!IsLocallyControlled()) return;
@@ -354,6 +379,39 @@ void APlayerCharacter::ServerEquipButtonPressed_Implementation()
 	}
 }
 
+// called on server only
+void APlayerCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
+{
+	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
+	UpdateHUDHealth();
+	PlayHitReactMontage(); // play montage on server
+
+	if (Health == 0.f)
+	{
+		ABlasterGameMode* BlasterGameMode = GetWorld()->GetAuthGameMode<ABlasterGameMode>();
+		if (BlasterGameMode)
+		{
+			FrontierPlayerController = FrontierPlayerController == nullptr ? Cast<AFrontierPlayerController>(GetController()) : FrontierPlayerController;
+			AFrontierPlayerController* AttackerController = Cast<AFrontierPlayerController>(InstigatorController);
+			BlasterGameMode->PlayerEliminated(this, FrontierPlayerController, AttackerController);
+		}
+	}
+}
+
+void APlayerCharacter::OnRep_Health()
+{
+	UpdateHUDHealth();
+	PlayHitReactMontage();
+}
+
+void APlayerCharacter::UpdateHUDHealth()
+{
+	FrontierPlayerController = FrontierPlayerController == nullptr ? Cast<AFrontierPlayerController>(GetController()) : FrontierPlayerController;
+	if (FrontierPlayerController)
+	{
+		FrontierPlayerController->SetHUDHealth(Health, MaxHealth);
+	}
+}
 
 void APlayerCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {

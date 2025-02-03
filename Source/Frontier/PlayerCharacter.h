@@ -35,14 +35,15 @@ public:
 	virtual void PostInitializeComponents() override;
 
 	void PlayFireMontage(bool bAiming);
-
-	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastHit();
-
 	void PlayHitReactMontage();
+	void PlayElimMontage();
+	UFUNCTION(NetMulticast, Reliable)
+	void Elim();
 
 protected:
 	virtual void BeginPlay() override;
+
+	void InitControllerMappingContext();
 
 	// Input
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
@@ -71,6 +72,8 @@ protected:
 	
 	void AimOffset(float dt);
 
+	UFUNCTION()
+	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
 	USpringArmComponent* CameraBoom;
@@ -90,6 +93,8 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UCombatComponent* Combat;
 
+	class AFrontierPlayerController* FrontierPlayerController;
+
 	// RPC
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed();
@@ -107,16 +112,29 @@ private:
 	ETurningInPlace TurningInPlace;
 	void TurnInPlace(float dt);
 
+	// Anim Montages
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage* FireWeaponMontage;	
-	
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage* HitReactMontage;
+	UPROPERTY(EditAnywhere, Category = Combat)
+	class UAnimMontage* ElimMontage;
+
+	// Health
+	UPROPERTY(EditAnywhere, Category = "Player Stats")
+	float MaxHealth = 100.f;
+	UPROPERTY(ReplicatedUsing = OnRep_Health, VisibleAnywhere, Category = "Player Stats")
+	float Health = 100.f;
+	bool bElimd = false;
+	UFUNCTION()
+	void OnRep_Health();
+	void UpdateHUDHealth();
 
 public:  // Getters + Setters
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();
 	bool IsAiming();
+	FORCEINLINE bool IsElimd() const { return bElimd;  };
 	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; }
 	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; }
 	AWeapon* GetEquippedWeapon();

@@ -38,17 +38,26 @@ UCLASS()
 class FRONTIER_API APlayerHUD : public AHUD
 {
 	GENERATED_BODY()
+public:
+	class UCharacterOverlay* CharacterOverlay;
+	UPROPERTY(EditAnywhere, Category = "Player Stats")
+	TSubclassOf<class UUserWidget> CharacterOverlayClass;
+
+protected:
+	virtual void BeginPlay() override;
+	void AddCharacterOverlay();
+private:
+	FHUDPackage HUDPackage;
+	UPROPERTY(EditAnywhere, Category = "Crosshairs")
+	float CrosshairSpreadMax = 16.f;
+
+
 
 public:
+	FORCEINLINE void SetHUDPackage(const FHUDPackage& Package) { HUDPackage = Package; }
 	virtual void DrawHUD() override;
 
 private:
 	void DrawCrosshair(UTexture2D* Texture, const FVector2D& ViewportCenter, FVector2D Spread, FLinearColor Color);
 	
-private:
-	FHUDPackage HUDPackage;
-	UPROPERTY(EditAnywhere)
-	float CrosshairSpreadMax = 16.f;
-public:
-	FORCEINLINE void SetHUDPackage(const FHUDPackage& Package) { HUDPackage = Package; }
 };
