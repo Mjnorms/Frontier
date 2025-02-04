@@ -119,19 +119,42 @@ void APlayerCharacter::PlayElimMontage()
 	}
 }
 
+
+// Called on server only
 void APlayerCharacter::Elim()
 {
+	if (Combat && Combat->EquippedWeapon)
+	{
+		Combat->EquippedWeapon->Dropped();
+	}
 	MultiCastElim();
 	GetWorldTimerManager().SetTimer(ElimTimer, this, &APlayerCharacter::ElimTimerFinished, ElimDelay);
 }
 
+// Called on all machines
 void APlayerCharacter::MultiCastElim_Implementation()
 {
+	// anim
 	bElimd = true;
 	PlayElimMontage();
 
+	// disolve
 	InitializeDissolveMaterialParameters();
 	StartDissolve();
+
+	// Disable player movement
+	GetCharacterMovement()->DisableMovement();
+	GetCharacterMovement()->StopMovementImmediately();
+	if (FrontierPlayerController)
+	{
+		DisableInput(FrontierPlayerController);
+	}
+
+	// Disable Collision
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// Drop Weapon
 }
 
 void APlayerCharacter::InitializeDissolveMaterialParameters()
