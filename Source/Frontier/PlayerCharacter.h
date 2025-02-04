@@ -8,7 +8,7 @@
 #include "Logging/LogMacros.h"
 #include "Interfaces/OnlineSessionInterface.h"
 #include "Frontier/Interfaces/InteractWithCrosshairInterface.h"
-
+#include "Components/TimelineComponent.h"
 #include "PlayerCharacter.generated.h"
 
 
@@ -134,6 +134,23 @@ private:
 	void OnRep_Health();
 	void UpdateHUDHealth();
 	void ElimTimerFinished();
+
+	// Elim Dissolve
+	UPROPERTY(VisibleAnywhere)
+	UTimelineComponent* DissolveTimeline;
+	FOnTimelineFloat DissolveTrack;
+	UFUNCTION()
+	void UpdateDissolveMaterial(float DissolveValue);
+	void InitializeDissolveMaterialParameters();
+	void StartDissolve();
+	UPROPERTY(EditAnywhere)
+	UCurveFloat* DissolveCurve;
+	// Dynamic instance that we can change at runtime. 
+	UPROPERTY(VisibleAnywhere, Category = "Eliminated")
+	TArray<UMaterialInstanceDynamic*> DynamicDissolveMaterialInstances;
+	// Material instance set on the blueprint, used with the dynamic material instance. 
+	UPROPERTY(EditAnywhere, Category = "Eliminated")
+	TArray<UMaterialInstance*> DissolveMaterialInstances;
 
 public:  // Getters + Setters
 	void SetOverlappingWeapon(AWeapon* Weapon);

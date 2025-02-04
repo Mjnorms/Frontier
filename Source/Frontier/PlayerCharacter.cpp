@@ -59,6 +59,8 @@ APlayerCharacter::APlayerCharacter()
 	TurningInPlace = ETurningInPlace::ETIP_None;
 	NetUpdateFrequency = 66.f;
 	MinNetUpdateFrequency = 33.f;
+
+	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
 }
 
 void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -127,6 +129,67 @@ void APlayerCharacter::MultiCastElim_Implementation()
 {
 	bElimd = true;
 	PlayElimMontage();
+
+	InitializeDissolveMaterialParameters();
+	StartDissolve();
+}
+
+void APlayerCharacter::InitializeDissolveMaterialParameters()
+{
+	DynamicDissolveMaterialInstances.SetNum(DissolveMaterialInstances.Num());
+
+	for (int32 i = 0; i < DissolveMaterialInstances.Num(); ++i)
+	{
+		// Create dynamic material instance
+		UMaterialInstanceDynamic* DynamicMat = UMaterialInstanceDynamic::Create(DissolveMaterialInstances[i], this);
+		if (!DynamicMat) continue;
+
+		DynamicDissolveMaterialInstances[i] = DynamicMat;
+		GetMesh()->SetMaterial(i, DynamicMat);
+
+		// Retrieve all scalar parameters from the material
+		TArray<FMaterialParameterInfo> ScalarParamsInfo;
+		TArray<FGuid> ScalarParamsIDs;
+		DynamicMat->GetAllScalarParameterInfo(ScalarParamsInfo, ScalarParamsIDs);
+
+		// Convert to a set for fast lookups
+		TSet<FName> AvailableParams;
+		for (const auto& ParamInfo : ScalarParamsInfo)
+		{
+			AvailableParams.Add(ParamInfo.Name);
+		}
+
+		// Desired parameters and values
+		TMap<FName, float> ScalarParamsToSet = {
+			{ TEXT("Dissolve"), 0.55f },
+			{ TEXT("Glow"), 150.f }
+		};
+
+		// Apply only existing parameters
+		for (const auto& Param : ScalarParamsToSet)
+		{
+			if (AvailableParams.Contains(Param.Key))
+			{
+				DynamicMat->SetScalarParameterValue(Param.Key, Param.Value);
+			}
+		}
+	}
+
+	int32 MaterialCount = GetMesh()->GetNumMaterials();
+	// Set remaining materials to be fully dissolved (invisible)
+	for (int32 i = DynamicDissolveMaterialInstances.Num(); i < MaterialCount; ++i)
+	{
+		UMaterialInterface* BaseMaterial = GetMesh()->GetMaterial(i);
+		if (!BaseMaterial) continue;
+
+		UMaterialInstanceDynamic* DynamicMat = UMaterialInstanceDynamic::Create(BaseMaterial, GetMesh());
+		if (!DynamicMat) continue;
+
+		GetMesh()->SetMaterial(i, DynamicMat);
+
+		// Fully dissolve these materials
+		DynamicMat->SetScalarParameterValue(TEXT("Opacity"), 0.0f);  // Fully transparent
+	}
 }
 
 void APlayerCharacter::ElimTimerFinished()
@@ -135,6 +198,24 @@ void APlayerCharacter::ElimTimerFinished()
 	if (BlasterGameMode)
 	{
 		BlasterGameMode->RequestRespawn(this, Controller);
+	}
+}
+
+void APlayerCharacter::UpdateDissolveMaterial(float DissolveValue)
+{
+	for (const auto DynamicMaterial : DynamicDissolveMaterialInstances)
+	{
+		DynamicMaterial->SetScalarParameterValue(TEXT("Dissolve"), DissolveValue);
+	}
+}
+
+void APlayerCharacter::StartDissolve()
+{
+	DissolveTrack.BindDynamic(this, &APlayerCharacter::UpdateDissolveMaterial);
+	if (DissolveCurve && DissolveTimeline)
+	{
+		DissolveTimeline->AddInterpFloat(DissolveCurve, DissolveTrack);
+		DissolveTimeline->Play();
 	}
 }
 
@@ -428,6 +509,8 @@ void APlayerCharacter::UpdateHUDHealth()
 		FrontierPlayerController->SetHUDHealth(Health, MaxHealth);
 	}
 }
+
+
 
 void APlayerCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {
