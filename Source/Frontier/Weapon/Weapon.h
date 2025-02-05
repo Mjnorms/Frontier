@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "WeaponTypes.h"
 
 #include "Weapon.generated.h"
 
@@ -87,6 +88,9 @@ private:
 	class APlayerCharacter* OwnerCharacter = nullptr;
 	class AFrontierPlayerController* OwnerController = nullptr;
 
+	UPROPERTY(EditAnywhere)
+	EWeaponType WeaponType;
+
 public:
 	// Crosshairs
 	UPROPERTY(EditAnywhere, Category = "Crosshairs")
@@ -118,5 +122,6 @@ public:
 
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
+	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 
 };

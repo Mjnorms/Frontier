@@ -37,6 +37,16 @@ void UCombatComponent::BeginPlay()
 	}
 }
 
+void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
+	DOREPLIFETIME(UCombatComponent, bAiming);
+	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
+}
+
+
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -91,6 +101,17 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	//SetOwner is already replicated, as owner has a rep notify OnRep_Owner()
 	EquippedWeapon->SetOwner(PlayerCharacter);
 	EquippedWeapon->WeaponUpdateHUD();
+
+	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
+	{
+		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
+	}
+
+	PlayerController = PlayerController == nullptr ? Cast<AFrontierPlayerController>(PlayerCharacter->Controller) : PlayerController;
+	if (PlayerController)
+	{
+		PlayerController->SetHUDCarriedAmmo(CarriedAmmo);
+	}
 
 	PlayerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 	PlayerCharacter->bUseControllerRotationYaw = true;
@@ -188,7 +209,7 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 {
 	if (PlayerCharacter == nullptr) return;
-	PlayerController = PlayerController == nullptr ? Cast<APlayerController>(PlayerCharacter->Controller) : PlayerController;
+	PlayerController = PlayerController == nullptr ? Cast<AFrontierPlayerController>(PlayerCharacter->Controller) : PlayerController;
 	if (PlayerController)
 	{
 		HUD = HUD == nullptr ? Cast<APlayerHUD>(PlayerController->GetHUD()) : HUD;
@@ -308,6 +329,15 @@ void UCombatComponent::FireTimerFinished()
 	if (EquippedWeapon != nullptr && EquippedWeapon->bAutomatic) bJustFired = false;
 }
 
+void UCombatComponent::OnRep_CarriedAmmo()
+{
+	PlayerController = PlayerController == nullptr ? Cast<AFrontierPlayerController>(PlayerCharacter->Controller) : PlayerController;
+	if (PlayerController)
+	{
+		PlayerController->SetHUDCarriedAmmo(CarriedAmmo);
+	}
+}
+
 void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
 	if (EquippedWeapon == nullptr) return;
@@ -321,13 +351,5 @@ void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& T
 void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
 	MulticastFire(TraceHitTarget);
-}
-
-void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
-	DOREPLIFETIME(UCombatComponent, bAiming);
 }
 

@@ -27,5 +27,7 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* WeaponAmmoAmount = nullptr;
 	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* CarriedAmmoAmount = nullptr;
+	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* DeathNotif = nullptr;
 };

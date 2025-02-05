@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "Frontier/PlayerController/FrontierPlayerController.h"
 #include "Frontier/HUD/PlayerHUD.h"
+#include "Frontier/Weapon/WeaponTypes.h"
 #include "CombatComponent.generated.h"
 
 #define TRACE_LENGTH 1000000.f;
@@ -32,9 +33,6 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerSetAiming(bool bIsAiming);
 
-	UFUNCTION()
-	void OnRep_EquippedWeapon();
-
 	void SetFiring(bool bIsFiring);
 
 	void Fire();
@@ -53,11 +51,13 @@ protected:
 	void InterpFOV(float DeltaTime);
 private:
 	APlayerCharacter* PlayerCharacter = nullptr;
-	class APlayerController* PlayerController = nullptr;
+	class AFrontierPlayerController* PlayerController = nullptr;
 	class APlayerHUD* HUD = nullptr;
 	
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
-	AWeapon* EquippedWeapon;
+	AWeapon* EquippedWeapon;	
+	UFUNCTION()
+	void OnRep_EquippedWeapon();
 
 	// aiming
 	UPROPERTY(Replicated)
@@ -73,6 +73,14 @@ private:
 	void StartFireTimer();
 	void FireTimerFinished();
 	bool bJustFired = false;
+
+	// Carried Ammo for the currently equipped weapon
+	UPROPERTY(ReplicatedUsing = OnRep_CarriedAmmo)
+	int32 CarriedAmmo = 0;
+	UFUNCTION()
+	void OnRep_CarriedAmmo();
+	UPROPERTY(EditAnywhere)
+	TMap<EWeaponType, int32> CarriedAmmoMap;
 
 	// walk speed
 	UPROPERTY(EditAnywhere)
