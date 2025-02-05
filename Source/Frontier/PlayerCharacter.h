@@ -62,8 +62,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* AimAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-
 	UInputAction* FireAction;
+
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void EquipPressed();
@@ -75,6 +75,9 @@ protected:
 
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
+
+	// Poll for any relevant classes and init HUD
+	void InitHUD_Poll();
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
 	USpringArmComponent* CameraBoom;
@@ -92,9 +95,10 @@ private:
 	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);
 
 	UPROPERTY(VisibleAnywhere)
-	class UCombatComponent* Combat;
+	class UCombatComponent* Combat = nullptr;
 
-	class AFrontierPlayerController* FrontierPlayerController;
+	class AFrontierPlayerController* FrontierPlayerController = nullptr;
+	class ABlasterPlayerState* BlasterPlayerState = nullptr;
 
 	// RPC
 	UFUNCTION(Server, Reliable)
@@ -115,11 +119,11 @@ private:
 
 	// Anim Montages
 	UPROPERTY(EditAnywhere, Category = Combat)
-	class UAnimMontage* FireWeaponMontage;	
+	class UAnimMontage* FireWeaponMontage = nullptr;
 	UPROPERTY(EditAnywhere, Category = Combat)
-	class UAnimMontage* HitReactMontage;
+	class UAnimMontage* HitReactMontage = nullptr;
 	UPROPERTY(EditAnywhere, Category = Combat)
-	class UAnimMontage* ElimMontage;
+	class UAnimMontage* ElimMontage = nullptr;
 
 	// Health
 	UPROPERTY(EditAnywhere, Category = "Player Stats")
@@ -133,6 +137,8 @@ private:
 	UFUNCTION()
 	void OnRep_Health();
 	void UpdateHUDHealth();
+	void DisplayDeathNotification();
+	void HideDeathNotification();
 	void ElimTimerFinished();
 
 	// Elim Dissolve

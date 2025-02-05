@@ -19,6 +19,7 @@
 #include "PlayerCharacterAnimInstance.h"
 #include "Frontier/Frontier.h"
 #include "Frontier/PlayerController/FrontierPlayerController.h"
+#include "Frontier/PlayerState/BlasterPlayerState.h"
 #include "Frontier/GameMode/BlasterGameMode.h"
 #include "TimerManager.h"
 
@@ -154,7 +155,8 @@ void APlayerCharacter::MultiCastElim_Implementation()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	// Drop Weapon
+	// Display Death Notif
+	DisplayDeathNotification();
 }
 
 void APlayerCharacter::InitializeDissolveMaterialParameters()
@@ -246,6 +248,8 @@ void APlayerCharacter::StartDissolve()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	InitHUD_Poll();
+
 	AimOffset(DeltaTime);
 	HideCharacterIfCameraClose();
 }
@@ -260,6 +264,7 @@ void APlayerCharacter::BeginPlay()
 	
 	InitControllerMappingContext();
 	UpdateHUDHealth();
+	HideDeathNotification();
 
 	if (HasAuthority())
 	{
@@ -518,6 +523,19 @@ void APlayerCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const U
 	}
 }
 
+void APlayerCharacter::InitHUD_Poll()
+{
+	if (BlasterPlayerState == nullptr)
+	{
+		BlasterPlayerState = GetPlayerState<ABlasterPlayerState>();
+		if (BlasterPlayerState != nullptr) // reaches here only on first successful poll
+		{
+			BlasterPlayerState->AddToScore(0.f);
+			BlasterPlayerState->AddToDeaths(0);
+		}
+	}
+}
+
 void APlayerCharacter::OnRep_Health()
 {
 	UpdateHUDHealth();
@@ -533,7 +551,23 @@ void APlayerCharacter::UpdateHUDHealth()
 	}
 }
 
+void APlayerCharacter::DisplayDeathNotification()
+{
+	FrontierPlayerController = FrontierPlayerController == nullptr ? Cast<AFrontierPlayerController>(GetController()) : FrontierPlayerController;
+	if (FrontierPlayerController)
+	{
+		FrontierPlayerController->DisplayDeathNotif();
+	}
+}
 
+void APlayerCharacter::HideDeathNotification()
+{
+	FrontierPlayerController = FrontierPlayerController == nullptr ? Cast<AFrontierPlayerController>(GetController()) : FrontierPlayerController;
+	if (FrontierPlayerController)
+	{
+		FrontierPlayerController->HideDeathNotif();
+	}
+}
 
 void APlayerCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {

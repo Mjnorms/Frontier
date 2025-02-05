@@ -15,7 +15,7 @@ class FRONTIER_API AFrontierPlayerController : public APlayerController
 	GENERATED_BODY()
 
 private:
-	class APlayerHUD* PlayerHUD;
+	class APlayerHUD* PlayerHUD = nullptr;
 
 
 protected:
@@ -23,5 +23,8 @@ protected:
 
 public:
 	void SetHUDHealth(float Health, float MaxHealth);
-
+	void SetHUDScore(float Score);
+	void SetHUDDeaths(int32 Deaths);
+	void DisplayDeathNotif();
+	void HideDeathNotif();
 };

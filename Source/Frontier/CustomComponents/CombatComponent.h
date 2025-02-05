@@ -50,10 +50,10 @@ protected:
 	void SetHUDCrosshairs(float DeltaTime);
 	void InterpFOV(float DeltaTime);
 private:
-	APlayerCharacter* PlayerCharacter;
-	class APlayerController* PlayerController;
-	class APlayerHUD* HUD;
-
+	APlayerCharacter* PlayerCharacter = nullptr;
+	class APlayerController* PlayerController = nullptr;
+	class APlayerHUD* HUD = nullptr;
+	
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 	AWeapon* EquippedWeapon;
 

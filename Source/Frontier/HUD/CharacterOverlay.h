@@ -17,7 +17,13 @@ class FRONTIER_API UCharacterOverlay : public UUserWidget
 // variables
 public:
 	UPROPERTY(meta = (BindWidget))
-	class UProgressBar* HealthBar;
+	class UProgressBar* HealthBar = nullptr;
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* HealthText;
+	class UTextBlock* HealthText = nullptr;
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* ScoreAmount = nullptr;
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* DeathsAmount = nullptr;
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* DeathNotif = nullptr;
 };
