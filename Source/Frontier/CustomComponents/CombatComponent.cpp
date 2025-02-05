@@ -72,6 +72,30 @@ void UCombatComponent::ServerSetAiming_Implementation(bool bIsAiming)
 	}
 }
 
+void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
+{
+	if (PlayerCharacter == nullptr || WeaponToEquip == nullptr) return;
+	
+	//Drop curr wep if already holding one
+	if (EquippedWeapon) EquippedWeapon->Dropped();
+
+	//Setting new Equipped Weapon & state
+	EquippedWeapon = WeaponToEquip;
+	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+	//Attach to Hand
+	const USkeletalMeshSocket* HandSocket = PlayerCharacter->GetMesh()->GetSocketByName(FName("RightHandSocket"));
+	if (HandSocket)
+	{
+		HandSocket->AttachActor(EquippedWeapon, PlayerCharacter->GetMesh());
+	}
+	//SetOwner is already replicated, as owner has a rep notify OnRep_Owner()
+	EquippedWeapon->SetOwner(PlayerCharacter);
+	EquippedWeapon->WeaponUpdateHUD();
+
+	PlayerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
+	PlayerCharacter->bUseControllerRotationYaw = true;
+}
+
 void UCombatComponent::OnRep_EquippedWeapon()
 {
 	if (EquippedWeapon && PlayerCharacter)
@@ -247,7 +271,7 @@ void UCombatComponent::SetFiring(bool bIsFiring)
 {
 	if (EquippedWeapon == nullptr) return;
 	bFiring = bIsFiring;
-	if (bFiring && !bJustFired)
+	if (bFiring && CanFire())
 		Fire();
 
 	if (!bFiring && !EquippedWeapon->bAutomatic)
@@ -265,6 +289,12 @@ void UCombatComponent::Fire()
 	if (EquippedWeapon) CrosshairShootingFactor = .75f;
 	StartFireTimer();
 	bJustFired = true;
+}
+
+bool UCombatComponent::CanFire()
+{
+	if (EquippedWeapon == nullptr) return false;
+	return !EquippedWeapon->IsEmpty() && !bJustFired;
 }
 
 void UCombatComponent::StartFireTimer()
@@ -299,25 +329,5 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
 	DOREPLIFETIME(UCombatComponent, bAiming);
-}
-
-void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
-{
-	if (PlayerCharacter == nullptr || WeaponToEquip == nullptr) return;
-
-	//Setting Equipped Weapon & state
-	EquippedWeapon = WeaponToEquip; //TODO: Drop old wep
-	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
-	//Attach to Hand
-	const USkeletalMeshSocket* HandSocket = PlayerCharacter->GetMesh()->GetSocketByName(FName("RightHandSocket"));
-	if (HandSocket)
-	{
-		HandSocket->AttachActor(EquippedWeapon, PlayerCharacter->GetMesh());
-	}
-	//SetOwner is already replicated, as owner has a rep notify OnRep_Owner()
-	EquippedWeapon->SetOwner(PlayerCharacter);
-
-	PlayerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
-	PlayerCharacter->bUseControllerRotationYaw = true;
 }
 

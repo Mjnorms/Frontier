@@ -25,9 +25,12 @@ public:
 	AWeapon();
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void OnRep_Owner() override;
 	void ShowPickupWidget(bool bShowWidget);
 	virtual void Fire(const FVector& HitTarget);
 	void Dropped();
+	void WeaponUpdateHUD();
+	bool IsEmpty();
 
 protected:
 	virtual void BeginPlay() override;
@@ -68,6 +71,21 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	class UAnimationAsset* FireAnimation;
+
+	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_Ammo, Category = "Ammo")
+	int32 Ammo;
+
+	void SpendRound();
+
+
+	UFUNCTION()
+	void OnRep_Ammo();
+
+	UPROPERTY(EditAnywhere, Category = "Ammo")
+	int32 MagCapacity;
+
+	class APlayerCharacter* OwnerCharacter = nullptr;
+	class AFrontierPlayerController* OwnerController = nullptr;
 
 public:
 	// Crosshairs

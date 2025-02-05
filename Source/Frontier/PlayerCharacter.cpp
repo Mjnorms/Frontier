@@ -143,12 +143,13 @@ void APlayerCharacter::MultiCastElim_Implementation()
 	InitializeDissolveMaterialParameters();
 	StartDissolve();
 
-	// Disable player movement
+	// Disable player movement + set ammo HUD
 	GetCharacterMovement()->DisableMovement();
 	GetCharacterMovement()->StopMovementImmediately();
 	if (FrontierPlayerController)
 	{
 		DisableInput(FrontierPlayerController);
+		FrontierPlayerController->SetHUDWeaponAmmo(0);
 	}
 
 	// Disable Collision
@@ -264,7 +265,6 @@ void APlayerCharacter::BeginPlay()
 	
 	InitControllerMappingContext();
 	UpdateHUDHealth();
-	HideDeathNotification();
 
 	if (HasAuthority())
 	{
@@ -532,6 +532,7 @@ void APlayerCharacter::InitHUD_Poll()
 		{
 			BlasterPlayerState->AddToScore(0.f);
 			BlasterPlayerState->AddToDeaths(0);
+			HideDeathNotification();
 		}
 	}
 }

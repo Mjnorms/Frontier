@@ -39,12 +39,21 @@ void AFrontierPlayerController::SetHUDScore(float score)
 void AFrontierPlayerController::SetHUDDeaths(int32 Deaths)
 {
 	PlayerHUD = PlayerHUD == nullptr ? Cast<APlayerHUD>(GetHUD()) : PlayerHUD;
-	bool bHUDValid = PlayerHUD != nullptr && PlayerHUD->CharacterOverlay != nullptr && PlayerHUD->CharacterOverlay->ScoreAmount != nullptr;
+	bool bHUDValid = PlayerHUD != nullptr && PlayerHUD->CharacterOverlay != nullptr && PlayerHUD->CharacterOverlay->DeathsAmount != nullptr;
 	if (!bHUDValid) return;
 
 	FString DeathsText = FString::Printf(TEXT("%d"), Deaths);
 	PlayerHUD->CharacterOverlay->DeathsAmount->SetText(FText::FromString(DeathsText));
+}
 
+void AFrontierPlayerController::SetHUDWeaponAmmo(int32 Ammo)
+{
+	PlayerHUD = PlayerHUD == nullptr ? Cast<APlayerHUD>(GetHUD()) : PlayerHUD;
+	bool bHUDValid = PlayerHUD != nullptr && PlayerHUD->CharacterOverlay != nullptr && PlayerHUD->CharacterOverlay->WeaponAmmoAmount != nullptr;
+	if (!bHUDValid) return;
+
+	FString AmmoText = FString::Printf(TEXT("%d"), Ammo);
+	PlayerHUD->CharacterOverlay->WeaponAmmoAmount->SetText(FText::FromString(AmmoText));
 }
 
 void AFrontierPlayerController::DisplayDeathNotif()

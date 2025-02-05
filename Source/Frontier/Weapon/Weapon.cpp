@@ -8,6 +8,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Animation/AnimationAsset.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Frontier/PlayerController/FrontierPlayerController.h"
 
 
 //////////////////////////////////////////////////////////////
@@ -49,6 +50,21 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AWeapon, WeaponState);
+	DOREPLIFETIME(AWeapon, Ammo);
+}
+
+void AWeapon::OnRep_Owner()
+{
+	Super::OnRep_Owner();
+	if (Owner == nullptr)
+	{
+		OwnerCharacter = nullptr;
+		OwnerController = nullptr;
+	}
+	else
+	{
+		WeaponUpdateHUD();
+	}
 }
 
 void AWeapon::ShowPickupWidget(bool bShowWidget)
@@ -62,6 +78,7 @@ void AWeapon::Fire(const FVector& HitTarget)
 	{
 		WeaponMesh->PlayAnimation(FireAnimation, false);
 	}
+	SpendRound();
 }
 
 void AWeapon::Dropped()
@@ -70,6 +87,8 @@ void AWeapon::Dropped()
 	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
 	WeaponMesh->DetachFromComponent(DetachRules);
 	SetOwner(nullptr);
+	OwnerCharacter = nullptr;
+	OwnerController = nullptr;
 }
 
 //////////////////////////////////////////////////////////////
@@ -107,6 +126,7 @@ void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	}
 }
 
+// Server function
 void AWeapon::SetWeaponState(EWeaponState State)
 {
 	WeaponState = State;
@@ -131,6 +151,7 @@ void AWeapon::SetWeaponState(EWeaponState State)
 	}
 }
 
+// Client Replicated function on weapon state change
 void AWeapon::OnRep_WeaponState()
 {
 	switch (WeaponState)
@@ -150,4 +171,34 @@ void AWeapon::OnRep_WeaponState()
 
 }
 
+// Server function
+void AWeapon::SpendRound()
+{
+	Ammo = FMath::Clamp(Ammo - 1, 0, MagCapacity);;
+	WeaponUpdateHUD();
+}
 
+
+// Client Replicated function on ammo change
+void AWeapon::OnRep_Ammo()
+{
+	WeaponUpdateHUD();
+}
+
+void AWeapon::WeaponUpdateHUD()
+{
+	OwnerCharacter = OwnerCharacter == nullptr ? Cast<APlayerCharacter>(GetOwner()) : OwnerCharacter;
+	if (OwnerCharacter)
+	{
+		OwnerController = OwnerController == nullptr ? Cast<AFrontierPlayerController>(OwnerCharacter->Controller) : OwnerController;
+		if (OwnerController)
+		{
+			OwnerController->SetHUDWeaponAmmo(Ammo);
+		}
+	}
+}
+
+bool AWeapon::IsEmpty()
+{
+	return Ammo <= 0;
+}

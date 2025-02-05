@@ -39,6 +39,8 @@ protected:
 
 	void Fire();
 
+	bool CanFire();
+
 	UFUNCTION(Server, Reliable)
 	void ServerFire(const FVector_NetQuantize& TraceHitTarget);
 
