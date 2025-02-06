@@ -22,6 +22,7 @@
 #include "Frontier/PlayerState/BlasterPlayerState.h"
 #include "Frontier/GameMode/BlasterGameMode.h"
 #include "TimerManager.h"
+#include "Frontier/Weapon/WeaponTypes.h"
 
 
 //////////////////////////////////////////////////////////////
@@ -92,6 +93,25 @@ void APlayerCharacter::PlayFireMontage(bool bAiming)
 		AnimInstance->Montage_Play(FireWeaponMontage);
 		FName SectionName;
 		SectionName = bAiming ? FName("RifleAim") : FName("RifleHip");
+		AnimInstance->Montage_JumpToSection(SectionName);
+	}
+}
+
+void APlayerCharacter::PlayReloadMontage()
+{
+	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && ReloadMontage)
+	{
+		AnimInstance->Montage_Play(ReloadMontage);
+		FName SectionName;
+		switch (Combat->EquippedWeapon->GetWeaponType())
+		{
+		case EWeaponType::EWT_AssaultRifle:
+			SectionName = FName("Rifle");
+			break;
+		}
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
 }
@@ -350,6 +370,14 @@ void APlayerCharacter::CrouchPressed(const FInputActionValue& Value)
 	}
 }
 
+void APlayerCharacter::ReloadPressed(const FInputActionValue& Value)
+{
+	if (Value[0]) // Pressed
+	{
+		Combat->Reload();
+	}
+}
+
 void APlayerCharacter::AimPressed(const FInputActionValue& Value)
 {
 	if (!Combat || !Combat->EquippedWeapon) return;
@@ -488,6 +516,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		//Firing
 		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &APlayerCharacter::FirePressed);
+
+		//Reloading
+		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Triggered, this, &APlayerCharacter::ReloadPressed);
 	}
 	else
 	{

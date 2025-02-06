@@ -35,6 +35,7 @@ public:
 	virtual void PostInitializeComponents() override;
 
 	void PlayFireMontage(bool bAiming);
+	void PlayReloadMontage();
 	void PlayHitReactMontage();
 	void PlayElimMontage();
 	void Elim();
@@ -63,11 +64,14 @@ protected:
 	UInputAction* AimAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* FireAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* ReloadAction;
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void EquipPressed();
 	void CrouchPressed(const FInputActionValue& Value);
+	void ReloadPressed(const FInputActionValue& Value);
 	void AimPressed(const FInputActionValue& Value);
 	void FirePressed(const FInputActionValue& Value);
 	
@@ -124,6 +128,8 @@ private:
 	class UAnimMontage* HitReactMontage = nullptr;
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage* ElimMontage = nullptr;
+	UPROPERTY(EditAnywhere, Category = Combat)
+	class UAnimMontage* ReloadMontage = nullptr;
 
 	// Health
 	UPROPERTY(EditAnywhere, Category = "Player Stats")

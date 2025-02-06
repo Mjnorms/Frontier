@@ -135,6 +135,19 @@ void UCombatComponent::OnRep_EquippedWeapon()
 	}
 }
 
+void UCombatComponent::Reload()
+{
+	if (CarriedAmmo > 0)
+	{
+		ServerReload();
+	}
+}
+void UCombatComponent::ServerReload_Implementation()
+{
+	if (PlayerCharacter == nullptr) return;
+	PlayerCharacter->PlayReloadMontage();
+}
+
 void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 {
 	FVector2D ViewportSize;
