@@ -68,6 +68,11 @@ private:
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
 
+	// reloading
+	FTimerHandle ReloadSafetyTimer;
+	void StartReloadSafetyTimer();
+	void ReloadSafetyTimerFinished();
+
 	// aiming
 	UPROPERTY(Replicated)
 	bool bAiming;

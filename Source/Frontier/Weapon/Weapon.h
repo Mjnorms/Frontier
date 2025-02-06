@@ -116,6 +116,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "FiringTiming")
 	bool bAutomatic = true;
 
+	// Reloading Timing (safety only)
+	UPROPERTY(EditAnywhere, Category = "ReloadingTiming")
+	float ReloadSafetyTime = 5.0f;
+
 // Getters/Setters
 public:
 	void SetWeaponState(EWeaponState State);

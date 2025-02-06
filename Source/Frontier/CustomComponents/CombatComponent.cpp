@@ -136,6 +136,7 @@ void UCombatComponent::OnRep_EquippedWeapon()
 	}
 }
 
+
 void UCombatComponent::OnRep_CombatState()
 {
 	switch (CombatState)
@@ -157,8 +158,8 @@ void UCombatComponent::ServerReload_Implementation()
 {
 	if (PlayerCharacter == nullptr) return;
 	CombatState = ECombatState::ECS_Reloading;
+	StartReloadSafetyTimer();
 	HandleReload();
-
 }
 
 void UCombatComponent::HandleReload()
@@ -170,6 +171,21 @@ void UCombatComponent::FinishReload()
 {
 	if (PlayerCharacter == nullptr) return;
 	if (PlayerCharacter->HasAuthority())
+	{
+		PlayerCharacter->GetWorldTimerManager().ClearTimer(ReloadSafetyTimer);
+		CombatState = ECombatState::ECS_Unoccupied;
+	}
+}
+
+void UCombatComponent::StartReloadSafetyTimer()
+{
+	if (EquippedWeapon == nullptr || PlayerCharacter == nullptr) return;
+	PlayerCharacter->GetWorldTimerManager().SetTimer(ReloadSafetyTimer, this, &UCombatComponent::ReloadSafetyTimerFinished, EquippedWeapon->ReloadSafetyTime);
+}
+
+void UCombatComponent::ReloadSafetyTimerFinished()
+{
+	if (CombatState == ECombatState::ECS_Reloading)
 	{
 		CombatState = ECombatState::ECS_Unoccupied;
 	}
@@ -355,7 +371,7 @@ void UCombatComponent::Fire()
 bool UCombatComponent::CanFire()
 {
 	if (EquippedWeapon == nullptr) return false;
-	return !EquippedWeapon->IsEmpty() && !bJustFired;
+	return !EquippedWeapon->IsEmpty() && !bJustFired && CombatState == ECombatState::ECS_Unoccupied;
 }
 
 void UCombatComponent::StartFireTimer()
@@ -381,7 +397,7 @@ void UCombatComponent::OnRep_CarriedAmmo()
 void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
 	if (EquippedWeapon == nullptr) return;
-	if (PlayerCharacter)
+	if (PlayerCharacter && CombatState == ECombatState::ECS_Unoccupied)
 	{
 		PlayerCharacter->PlayFireMontage(bAiming);
 		EquippedWeapon->Fire(TraceHitTarget);
