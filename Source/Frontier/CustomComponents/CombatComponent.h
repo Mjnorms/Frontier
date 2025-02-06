@@ -7,6 +7,7 @@
 #include "Frontier/PlayerController/FrontierPlayerController.h"
 #include "Frontier/HUD/PlayerHUD.h"
 #include "Frontier/Weapon/WeaponTypes.h"
+#include "Frontier/Types/CombatState.h"
 #include "CombatComponent.generated.h"
 
 #define TRACE_LENGTH 1000000.f;
@@ -45,11 +46,19 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void ServerReload();
+	void HandleReload();
+	UFUNCTION(BlueprintCallable)
+	void FinishReload();
 
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
 	void SetHUDCrosshairs(float DeltaTime);
 	void InterpFOV(float DeltaTime);
 private:
+	UPROPERTY(ReplicatedUsing = OnRep_CombatState)
+	ECombatState CombatState = ECombatState::ECS_Unoccupied;
+	UFUNCTION()
+	void OnRep_CombatState();
+
 	APlayerCharacter* PlayerCharacter = nullptr;
 	class AFrontierPlayerController* PlayerController = nullptr;
 	class APlayerHUD* HUD = nullptr;

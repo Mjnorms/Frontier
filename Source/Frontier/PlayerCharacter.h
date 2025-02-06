@@ -9,6 +9,8 @@
 #include "Interfaces/OnlineSessionInterface.h"
 #include "Frontier/Interfaces/InteractWithCrosshairInterface.h"
 #include "Components/TimelineComponent.h"
+#include "Frontier/Types/CombatState.h"
+
 #include "PlayerCharacter.generated.h"
 
 
@@ -98,7 +100,7 @@ private:
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCombatComponent* Combat = nullptr;
 
 	class AFrontierPlayerController* FrontierPlayerController = nullptr;
@@ -175,4 +177,5 @@ public:  // Getters + Setters
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FVector GetHitTarget() const;
+	ECombatState GetCombatState() const;
 };

@@ -6,6 +6,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "PlayerCharacter.h"
+#include "Frontier/Types/CombatState.h"
 
 void UPlayerCharacterAnimInstance::NativeInitializeAnimation()
 {
@@ -76,4 +77,6 @@ void UPlayerCharacterAnimInstance::NativeUpdateAnimation(float dt)
 		//DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), PlayerCharacter->GetHitTarget(), FColor::Orange);
 
 	}
+
+	bUseFabrik = PlayerCharacter->GetCombatState() != ECombatState::ECS_Reloading;
 }
