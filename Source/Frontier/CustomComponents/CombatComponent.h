@@ -50,6 +50,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void FinishReload();
 
+	void UpdateAmmoValues();
+	int32 AmountToReload();
+
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
 	void SetHUDCrosshairs(float DeltaTime);
 	void InterpFOV(float DeltaTime);
