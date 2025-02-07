@@ -9,6 +9,8 @@
 #include "Animation/AnimationAsset.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Frontier/PlayerController/FrontierPlayerController.h"
+#include "Kismet/GameplayStatics.h"
+
 
 
 //////////////////////////////////////////////////////////////
@@ -132,6 +134,16 @@ void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	}
 }
 
+void AWeapon::PlayEquipSound()
+{
+	if (EquipSound)
+	{
+		UGameplayStatics::SpawnSoundAttached(
+			EquipSound,
+			GetRootComponent());
+	}
+}
+
 // Server function
 void AWeapon::SetWeaponState(EWeaponState State)
 {
@@ -144,6 +156,7 @@ void AWeapon::SetWeaponState(EWeaponState State)
 		WeaponMesh->SetSimulatePhysics(false);
 		WeaponMesh->SetEnableGravity(false);
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		PlayEquipSound();
 		break;
 	case EWeaponState::EWS_Dropped:
 		if (HasAuthority())
@@ -167,6 +180,7 @@ void AWeapon::OnRep_WeaponState()
 		WeaponMesh->SetSimulatePhysics(false);
 		WeaponMesh->SetEnableGravity(false);
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		PlayEquipSound();
 		break;
 	case EWeaponState::EWS_Dropped:
 		WeaponMesh->SetSimulatePhysics(true);

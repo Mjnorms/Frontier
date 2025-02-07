@@ -77,8 +77,11 @@ private:
 	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_Ammo, Category = "Ammo")
 	int32 Ammo;
 
-	void SpendRound();
+	//Equip
+	UPROPERTY(EditAnywhere, Category = "Equip")
+	class USoundBase* EquipSound = nullptr;
 
+	void SpendRound();
 
 	UFUNCTION()
 	void OnRep_Ammo();
@@ -121,6 +124,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "ReloadingTiming")
 	float ReloadSafetyTime = 5.0f;
 
+	// Equip
+	void PlayEquipSound();
+
 // Getters/Setters
 public:
 	void SetWeaponState(EWeaponState State);
@@ -130,5 +136,6 @@ public:
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE int32 GetAmmo() const { return Ammo; }
 	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }
+	FORCEINLINE bool HasEquipSound() const { return EquipSound == nullptr; }
 
 };

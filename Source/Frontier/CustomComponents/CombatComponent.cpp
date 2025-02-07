@@ -133,6 +133,8 @@ void UCombatComponent::OnRep_EquippedWeapon()
 
 		PlayerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 		PlayerCharacter->bUseControllerRotationYaw = true;
+
+		EquippedWeapon->PlayEquipSound();
 	}
 }
 
@@ -246,16 +248,12 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 	{
 		bool AimingDebugDraw = false;
 		FVector Start = CrosshairWorldPos;
-		/*
-		* POTENTIAL ALTERNATIVE TO MAGIC NUMBER FOR MOVING TRACE FORWARD
+		// Cast from the end of the gun if we can
 		if (EquippedWeapon && EquippedWeapon->GetWeaponMesh()->DoesSocketExist(FName("MuzzleFlash")))
 		{
-			FVector MuzzleLocation = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("MuzzleFlash")).GetLocation();
-			float DistanceToMuzzle = (MuzzleLocation - Start).Size();
-			Start += CrosshairWorldDir * DistanceToMuzzle;
+			Start = EquippedWeapon->GetWeaponMesh()->GetSocketLocation(FName("MuzzleFlash"));
 		}
-		*/
-		if (PlayerCharacter)
+		else if (PlayerCharacter)
 		{
 			// this is problematic bc player location is at the character's feet... different distance when looking up or down
 			float DistanceToCharacter = (PlayerCharacter->GetActorLocation() - Start).Size();
