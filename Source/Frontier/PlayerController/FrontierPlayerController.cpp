@@ -4,17 +4,20 @@
 #include "FrontierPlayerController.h"
 #include "Frontier/HUD/PlayerHUD.h"
 #include "Frontier/HUD/CharacterOverlay.h"
+#include "Frontier/HUD/Annoucement.h"
 #include "Frontier/GameMode/BlasterGameMode.h"
 #include "Frontier/PlayerState/BlasterPlayerState.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Net/UnrealNetwork.h"
+#include "Kismet/GameplayStatics.h"
 
 void AFrontierPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
 	PlayerHUD = Cast<APlayerHUD>(GetHUD());
+	ServerCheckMatchState();
 }
 
 void AFrontierPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -44,13 +47,20 @@ void AFrontierPlayerController::CheckTimeSync(float DeltaTime)
 
 void AFrontierPlayerController::SetHUDTime()
 {
-	uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetServerTime());
+	float TimeLeft = 0.f;
+	if (MatchState == MatchState::WaitingToStart)	TimeLeft = WarmupTime - GetServerTime() + LevelStartingTime;
+	else if (MatchState == MatchState::InProgress)	TimeLeft = WarmupTime + MatchTime  - GetServerTime() + LevelStartingTime;
+
+
+	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
 	if (CountDownInt != SecondsLeft)
 	{
-		SetHUDMatchCountdown(SecondsLeft);
+		if (MatchState == MatchState::WaitingToStart) SetHUDAnnoucementCountdown(TimeLeft);
+		if (MatchState == MatchState::InProgress) SetHUDMatchCountdown(SecondsLeft);
 	}
 	CountDownInt = SecondsLeft;
 }
+
 void AFrontierPlayerController::PollInit()
 {
 	if (CharacterOverlay == nullptr)
@@ -94,6 +104,7 @@ void AFrontierPlayerController::ReceivedPlayer()
 		ServerRequestServerTime(GetWorld()->GetTimeSeconds());
 	}
 }
+
 
 void AFrontierPlayerController::SetHUDHealth(float Health, float MaxHealth)
 {
@@ -196,6 +207,19 @@ void AFrontierPlayerController::SetHUDMatchCountdown(float CountdownTime)
 	}
 }
 
+void AFrontierPlayerController::SetHUDAnnoucementCountdown(float AnnoucementTime)
+{
+	PlayerHUD = PlayerHUD == nullptr ? Cast<APlayerHUD>(GetHUD()) : PlayerHUD;
+	bool bHUDValid = PlayerHUD != nullptr && PlayerHUD->AnnoucementOverlay != nullptr && PlayerHUD->AnnoucementOverlay->WarmupTime != nullptr;
+	if (bHUDValid)
+	{
+		int32 Minutes = FMath::FloorToInt(AnnoucementTime / 60.f);
+		int32 Seconds = AnnoucementTime - (Minutes * 60);
+		FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+		PlayerHUD->AnnoucementOverlay->WarmupTime->SetText(FText::FromString(CountdownText));
+	}
+}
+
 void AFrontierPlayerController::DisplayDeathNotif()
 {
 	PlayerHUD = PlayerHUD == nullptr ? Cast<APlayerHUD>(GetHUD()) : PlayerHUD;
@@ -220,11 +244,7 @@ void AFrontierPlayerController::OnMatchStateSet(FName State)
 	MatchState = State;
 	if (MatchState == MatchState::InProgress)
 	{
-		PlayerHUD = PlayerHUD == nullptr ? Cast<APlayerHUD>(GetHUD()) : PlayerHUD;
-		bool bHUDValid = PlayerHUD != nullptr && PlayerHUD->CharacterOverlay != nullptr && PlayerHUD->CharacterOverlay->ScoreAmount != nullptr;
-		if (!bHUDValid) return;
-
-		PlayerHUD->AddCharacterOverlay();
+		HandleMatchHasStarted();
 	}
 }
 
@@ -232,12 +252,49 @@ void AFrontierPlayerController::OnRep_MatchState()
 {
 	if (MatchState == MatchState::InProgress)
 	{
-		PlayerHUD = PlayerHUD == nullptr ? Cast<APlayerHUD>(GetHUD()) : PlayerHUD;
-		bool bHUDValid = PlayerHUD != nullptr;
-		if (bHUDValid)
-		{
-			PlayerHUD->AddCharacterOverlay();
-		}
+		HandleMatchHasStarted();
+	}
+}
 
+void AFrontierPlayerController::HandleMatchHasStarted()
+{
+	PlayerHUD = PlayerHUD == nullptr ? Cast<APlayerHUD>(GetHUD()) : PlayerHUD;
+	bool bHUDValid = PlayerHUD != nullptr;
+	if (bHUDValid)
+	{
+		PlayerHUD->AddCharacterOverlay();
+		if (PlayerHUD->AnnoucementOverlay)
+		{
+			PlayerHUD->AnnoucementOverlay->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+}
+
+void AFrontierPlayerController::ServerCheckMatchState_Implementation()
+{
+	ABlasterGameMode* GameMode = Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this));
+	if (GameMode)
+	{
+		WarmupTime = GameMode->WarmupTime;
+		MatchTime = GameMode->MatchTime;
+		LevelStartingTime = GameMode->LevelStartingTime;
+		MatchState = GameMode->GetMatchState();
+		if (PlayerHUD && MatchState == MatchState::WaitingToStart && PlayerHUD->AnnoucementOverlay == nullptr)
+		{
+			PlayerHUD->AddAnnoucement();
+		}
+		ClientJoinMidGame(MatchState, WarmupTime, MatchTime, LevelStartingTime);
+	}
+}
+
+void AFrontierPlayerController::ClientJoinMidGame_Implementation(FName StateOfMatch, float Warmup, float Match, float StartingTime )
+{
+	WarmupTime = Warmup;
+	MatchTime = Match;
+	LevelStartingTime = StartingTime;
+	MatchState = StateOfMatch;
+	if (PlayerHUD && MatchState == MatchState::WaitingToStart && PlayerHUD->AnnoucementOverlay == nullptr)
+	{
+		PlayerHUD->AddAnnoucement();
 	}
 }

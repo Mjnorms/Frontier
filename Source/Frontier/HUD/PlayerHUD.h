@@ -42,6 +42,12 @@ public:
 	class UCharacterOverlay* CharacterOverlay = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Player Stats")
 	TSubclassOf<class UUserWidget> CharacterOverlayClass;
+	void AddCharacterOverlay();
+
+	class UAnnoucement* AnnoucementOverlay = nullptr;
+	UPROPERTY(EditAnywhere, Category = "Annoucement")
+	TSubclassOf<class UUserWidget> AnnoucementClass;
+	void AddAnnoucement();
 
 protected:
 	virtual void BeginPlay() override;
@@ -52,7 +58,6 @@ private:
 
 
 public:
-	void AddCharacterOverlay();
 
 
 	virtual void DrawHUD() override;

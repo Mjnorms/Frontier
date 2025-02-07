@@ -82,7 +82,7 @@ protected:
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 
-	// Poll for any relevant classes and init HUD
+	// Poll for any relevant classes and init
 	void InitHUD_Poll();
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camera)

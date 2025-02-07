@@ -282,9 +282,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	InitControllerMappingContext();
-	UpdateHUDHealth();
 
 	if (HasAuthority())
 	{
@@ -563,10 +560,14 @@ void APlayerCharacter::InitHUD_Poll()
 		{
 			BlasterPlayerState->AddToScore(0.f);
 			BlasterPlayerState->AddToDeaths(0);
+			UpdateHUDHealth();
 			HideDeathNotification();
+
+			InitControllerMappingContext();
 		}
 	}
 }
+
 
 void APlayerCharacter::OnRep_Health()
 {

@@ -19,7 +19,9 @@ private:
 
 	virtual void Tick(float DeltaTime) override;
 
-	float MatchTime = 120.f;
+	float MatchTime = 0.f;
+	float WarmupTime = 0.f;
+	float LevelStartingTime = 0.f;
 	int CountDownInt = 0;
 	void SetHUDTime();
 	void PollInit();
@@ -50,6 +52,15 @@ protected:
 	virtual float GetServerTime(); // Synced with server world clock
 	virtual void ReceivedPlayer() override; // Sync with server clock as soon as possible
 
+	void HandleMatchHasStarted();
+
+
+	UFUNCTION(Server, Reliable)
+	void ServerCheckMatchState();
+
+	UFUNCTION(Client, Reliable)
+	void ClientJoinMidGame(FName StateOfMatch, float Warmup, float Match, float StartingTime);
+
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;	// bind replicated props
 
@@ -60,12 +71,14 @@ public:
 	void SetHUDWeaponAmmo(int32 Ammo);
 	void SetHUDCarriedAmmo(int32 Ammo);
 	void SetHUDMatchCountdown(float CountdownTime);
+	void SetHUDAnnoucementCountdown(float AnnoucementTime);
 	void DisplayDeathNotif();
 	void HideDeathNotif();
 
 	void OnMatchStateSet(FName State);
 
 private:
+
 	// Cached HUD values
 	float HUDHealth = -1.f;
 	float HUDMaxHealth = -1.f;
