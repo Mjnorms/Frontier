@@ -136,10 +136,20 @@ void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 
 void AWeapon::PlayEquipSound()
 {
-	if (EquipSound)
+	if (EquipSound != nullptr)
 	{
 		UGameplayStatics::SpawnSoundAttached(
 			EquipSound,
+			GetRootComponent());
+	}
+}
+
+void AWeapon::PlayFireSound()
+{
+	if (FireSound != nullptr)
+	{
+		UGameplayStatics::SpawnSoundAttached(
+			FireSound,
 			GetRootComponent());
 	}
 }

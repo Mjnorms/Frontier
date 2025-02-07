@@ -433,6 +433,7 @@ void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& T
 	{
 		PlayerCharacter->PlayFireMontage(bAiming);
 		EquippedWeapon->Fire(TraceHitTarget);
+		EquippedWeapon->PlayFireSound();
 	}
 }
 

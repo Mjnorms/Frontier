@@ -13,8 +13,20 @@ UCLASS()
 class FRONTIER_API ABlasterGameMode : public AGameMode
 {
 	GENERATED_BODY()
-	
+
 public:
+	ABlasterGameMode();
+	void Tick(float DeltaTime) override;
+
+
 	virtual void PlayerEliminated(class APlayerCharacter* ElimdCharacter, class AFrontierPlayerController* VictimController, AFrontierPlayerController* AttackerController);
 	virtual void RequestRespawn(class ACharacter* ElimdCharacter, AController* ElimdController);
+
+	UPROPERTY(EditDefaultsOnly)
+	float WarmupTime = 10.f;
+	float LevelStartingTime = 0.f;
+
+protected:
+	virtual void BeginPlay() override;
+	float CountdownTime = 0.f;
 };

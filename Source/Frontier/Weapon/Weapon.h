@@ -77,10 +77,6 @@ private:
 	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_Ammo, Category = "Ammo")
 	int32 Ammo;
 
-	//Equip
-	UPROPERTY(EditAnywhere, Category = "Equip")
-	class USoundBase* EquipSound = nullptr;
-
 	void SpendRound();
 
 	UFUNCTION()
@@ -94,6 +90,12 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	EWeaponType WeaponType;
+
+	UPROPERTY(EditAnywhere, Category = "Equip")
+	class USoundBase* EquipSound = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Fire")
+	class USoundBase* FireSound = nullptr;
 
 public:
 	// Crosshairs
@@ -124,8 +126,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "ReloadingTiming")
 	float ReloadSafetyTime = 5.0f;
 
-	// Equip
+	// Sounds
 	void PlayEquipSound();
+	void PlayFireSound();
 
 // Getters/Setters
 public:

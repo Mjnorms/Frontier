@@ -30,4 +30,6 @@ public:
 	class UTextBlock* CarriedAmmoAmount = nullptr;
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* DeathNotif = nullptr;
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* MatchCountdownText = nullptr;
 };

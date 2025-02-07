@@ -8,6 +8,32 @@
 #include "GameFramework/PlayerStart.h"
 #include "Frontier/PlayerState/BlasterPlayerState.h"
 
+ABlasterGameMode::ABlasterGameMode()
+{
+	bDelayedStart = true; // Hold GameMode in waiting for StartMatch()
+}
+
+void ABlasterGameMode::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (MatchState == MatchState::WaitingToStart)
+	{
+		CountdownTime = WarmupTime - (GetWorld()->GetTimeSeconds() + LevelStartingTime);
+		if (CountdownTime <= 0.f)
+		{
+			StartMatch();
+		}
+	}
+}
+
+void ABlasterGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	LevelStartingTime = GetWorld()->GetTimeSeconds();
+}
+
 void ABlasterGameMode::PlayerEliminated(APlayerCharacter* ElimdCharacter, AFrontierPlayerController* VictimController, AFrontierPlayerController* AttackerController)
 {
 	ABlasterPlayerState* AttackerPlayerState = AttackerController ? Cast<ABlasterPlayerState>(AttackerController->PlayerState) : nullptr;
