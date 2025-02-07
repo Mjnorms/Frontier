@@ -22,6 +22,7 @@ private:
 	float MatchTime = 120.f;
 	int CountDownInt = 0;
 	void SetHUDTime();
+	void PollInit();
 	// sync time
 	// Requests the current server time, passing in the client's time when the request was sent
 	UFUNCTION(Server, Reliable)
@@ -35,6 +36,14 @@ private:
 	float TimeSyncRunningTime = 0.f;
 	void CheckTimeSync(float DeltaTime);
 
+	UPROPERTY(ReplicatedUsing = OnRep_MatchState)
+	FName MatchState;
+	UFUNCTION()
+	void OnRep_MatchState();
+	UPROPERTY()
+	class UCharacterOverlay* CharacterOverlay;
+	bool bInitializeCharacterOverlay = false;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -42,6 +51,9 @@ protected:
 	virtual void ReceivedPlayer() override; // Sync with server clock as soon as possible
 
 public:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;	// bind replicated props
+
+
 	void SetHUDHealth(float Health, float MaxHealth);
 	void SetHUDScore(float Score);
 	void SetHUDDeaths(int32 Deaths);
@@ -50,4 +62,15 @@ public:
 	void SetHUDMatchCountdown(float CountdownTime);
 	void DisplayDeathNotif();
 	void HideDeathNotif();
+
+	void OnMatchStateSet(FName State);
+
+private:
+	// Cached HUD values
+	float HUDHealth = -1.f;
+	float HUDMaxHealth = -1.f;
+	float HUDScore = -1.f;
+	int32 HUDDeaths = 0;
+	int32 HUDWeaponAmmo = 0;
+	int32 HUDCarriedAmmo = 0;
 };
