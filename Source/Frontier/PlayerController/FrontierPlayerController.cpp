@@ -246,6 +246,10 @@ void AFrontierPlayerController::OnMatchStateSet(FName State)
 	{
 		HandleMatchHasStarted();
 	}
+	else if (MatchState == MatchState::Cooldown)
+	{
+		HandleCooldown();
+	}
 }
 
 void AFrontierPlayerController::OnRep_MatchState()
@@ -253,6 +257,10 @@ void AFrontierPlayerController::OnRep_MatchState()
 	if (MatchState == MatchState::InProgress)
 	{
 		HandleMatchHasStarted();
+	}
+	else if (MatchState == MatchState::Cooldown)
+	{
+		HandleCooldown();
 	}
 }
 
@@ -266,6 +274,20 @@ void AFrontierPlayerController::HandleMatchHasStarted()
 		if (PlayerHUD->AnnoucementOverlay)
 		{
 			PlayerHUD->AnnoucementOverlay->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+}
+
+void AFrontierPlayerController::HandleCooldown()
+{
+	PlayerHUD = PlayerHUD == nullptr ? Cast<APlayerHUD>(GetHUD()) : PlayerHUD;
+	bool bHUDValid = PlayerHUD != nullptr && PlayerHUD->CharacterOverlay;
+	if (bHUDValid)
+	{
+		PlayerHUD->CharacterOverlay->RemoveFromParent();
+		if (PlayerHUD->AnnoucementOverlay)
+		{
+			PlayerHUD->AnnoucementOverlay->SetVisibility(ESlateVisibility::Visible);
 		}
 	}
 }

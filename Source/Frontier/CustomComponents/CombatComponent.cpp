@@ -227,70 +227,97 @@ void UCombatComponent::ReloadSafetyTimerFinished()
 	}
 }
 
-void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
+void UCombatComponent::TraceUnderCrosshairs(FHitResult& OutHitResult)
 {
-	FVector2D ViewportSize;
+	// 1. Get the viewport (screen) size and compute the center point (crosshair position)
+	FVector2D ScreenSize;
 	if (GEngine && GEngine->GameViewport)
 	{
-		GEngine->GameViewport->GetViewportSize(ViewportSize);
+		GEngine->GameViewport->GetViewportSize(ScreenSize);
 	}
-	FVector2D CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
-	FVector CrosshairWorldPos;
-	FVector CrosshairWorldDir;
-	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(
+	FVector2D ScreenCenter(ScreenSize.X * 0.5f, ScreenSize.Y * 0.5f);
+
+	// 2. Deproject the screen center to a world position and direction (based on the camera)
+	FVector CameraWorldPosition;
+	FVector CameraWorldDirection;
+	bool bDeprojectSuccessful = UGameplayStatics::DeprojectScreenToWorld(
 		UGameplayStatics::GetPlayerController(this, 0),
-		CrosshairLocation,
-		CrosshairWorldPos,
-		CrosshairWorldDir
+		ScreenCenter,
+		CameraWorldPosition,
+		CameraWorldDirection
 	);
-
-	if (bScreenToWorld)
+	if (!bDeprojectSuccessful)
 	{
-		bool AimingDebugDraw = false;
-		FVector Start = CrosshairWorldPos;
-		// Cast from the end of the gun if we can
-		if (EquippedWeapon && EquippedWeapon->GetWeaponMesh()->DoesSocketExist(FName("MuzzleFlash")))
-		{
-			Start = EquippedWeapon->GetWeaponMesh()->GetSocketLocation(FName("MuzzleFlash"));
-		}
-		else if (PlayerCharacter)
-		{
-			// this is problematic bc player location is at the character's feet... different distance when looking up or down
-			float DistanceToCharacter = (PlayerCharacter->GetActorLocation() - Start).Size();
-			Start += CrosshairWorldDir * (DistanceToCharacter + 60.f);
-		}
-		if (AimingDebugDraw) DrawDebugSphere(GetWorld(), Start, 16.f, 12, FColor::Red, false);
+		// If we can't deproject, exit early.
+		return;
+	}
 
-		FVector End = Start + CrosshairWorldDir * TRACE_LENGTH;
-		GetWorld()->LineTraceSingleByChannel(
-			TraceHitResult,
-			Start,
-			End,
-			ECollisionChannel::ECC_Visibility
-		);
-		if (!TraceHitResult.bBlockingHit)
-		{
-			TraceHitResult.ImpactPoint = End;
-		}
-		if (AimingDebugDraw)
-		{
-			DrawDebugSphere(
-				GetWorld(),
-				TraceHitResult.ImpactPoint,
-				12.f,
-				12.f,
-				FColor::Red
-			);
-		}
-		// Crosshair Interaction
-		if (TraceHitResult.GetActor() && TraceHitResult.GetActor()->Implements<UInteractWithCrosshairInterface>())
-		{
-			NewHUDPackage.CrosshairColor = FLinearColor::Red;
-		}
-		else
-		{
-			NewHUDPackage.CrosshairColor = FLinearColor::White;
-		}
+	// 3. Determine the starting point for our trace from the weapon's perspective.
+	//    If we have an equipped weapon with a "MuzzleFlash" socket, use that location.
+	//    Otherwise, adjust from the camera position. Note: Using the player's actor location
+	//    directly is problematic because it's at the feet. So we offset along the camera direction.
+	FVector TraceStart = CameraWorldPosition;
+	static const FName MuzzleSocketName(TEXT("MuzzleFlash"));
+	if (EquippedWeapon && EquippedWeapon->GetWeaponMesh()->DoesSocketExist(MuzzleSocketName))
+	{
+		TraceStart = EquippedWeapon->GetWeaponMesh()->GetSocketLocation(MuzzleSocketName);
+	}
+	else if (PlayerCharacter)
+	{
+		// Calculate an offset from the camera position toward the player character (accounting for the feet position)
+		float DistanceToPlayer = (PlayerCharacter->GetActorLocation() - CameraWorldPosition).Size();
+		TraceStart += CameraWorldDirection * (DistanceToPlayer + 60.f);
+	}
+
+	// Optionally, draw a debug sphere at the trace start (weapon muzzle or adjusted location)
+	if (AimingDebugDraw)
+	{
+		DrawDebugSphere(GetWorld(), TraceStart, 16.f, 12, FColor::Red);
+	}
+
+	// 4. First trace: From the camera's deprojected position out to a far point along the crosshair direction.
+	FVector CameraTraceEnd = CameraWorldPosition + CameraWorldDirection * TRACE_LENGTH;	
+	FHitResult CameraTraceHit;
+	GetWorld()->LineTraceSingleByChannel(
+		CameraTraceHit,
+		CameraWorldPosition,
+		CameraTraceEnd,
+		ECC_Visibility
+	);
+	// If nothing was hit, assume the aim is at the far end.
+	if (!CameraTraceHit.bBlockingHit)
+	{
+		CameraTraceHit.ImpactPoint = CameraTraceEnd;
+	}
+
+	// 5. Second trace: From the weapon (or adjusted) start toward the crosshair impact point determined above.
+	GetWorld()->LineTraceSingleByChannel(
+		OutHitResult,
+		TraceStart,
+		CameraTraceHit.ImpactPoint,
+		ECC_Visibility
+	);
+	// If nothing was hit from the weapon trace, default to the far end of the camera trace.
+	if (!OutHitResult.bBlockingHit)
+	{
+		OutHitResult.ImpactPoint = CameraTraceEnd;
+	}
+
+	// Optionally, draw a debug sphere at the final impact point
+	if (AimingDebugDraw)
+	{
+		DrawDebugSphere(GetWorld(), OutHitResult.ImpactPoint, 12.f, 12, FColor::Red);
+	}
+
+	// 6. Update HUD crosshair color based on what was hit (e.g., change to red if the hit actor
+	//    implements a specific interaction interface)
+	if (OutHitResult.GetActor() && OutHitResult.GetActor()->Implements<UInteractWithCrosshairInterface>())
+	{
+		NewHUDPackage.CrosshairColor = FLinearColor::Red;
+	}
+	else
+	{
+		NewHUDPackage.CrosshairColor = FLinearColor::White;
 	}
 }
 

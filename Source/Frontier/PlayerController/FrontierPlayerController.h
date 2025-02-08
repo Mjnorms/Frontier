@@ -53,6 +53,7 @@ protected:
 	virtual void ReceivedPlayer() override; // Sync with server clock as soon as possible
 
 	void HandleMatchHasStarted();
+	void HandleCooldown();
 
 
 	UFUNCTION(Server, Reliable)
