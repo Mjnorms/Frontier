@@ -44,7 +44,7 @@ public:
 	TSubclassOf<class UUserWidget> CharacterOverlayClass;
 	void AddCharacterOverlay();
 
-	class UAnnoucement* AnnoucementOverlay = nullptr;
+	class UAnnoucement* AnnouncementOverlay = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Annoucement")
 	TSubclassOf<class UUserWidget> AnnoucementClass;
 	void AddAnnoucement();

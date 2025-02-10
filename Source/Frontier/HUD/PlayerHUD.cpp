@@ -27,8 +27,8 @@ void APlayerHUD::AddAnnoucement()
 	APlayerController* PlayerController = GetOwningPlayerController();
 	if (PlayerController && AnnoucementClass)
 	{
-		AnnoucementOverlay = CreateWidget<UAnnoucement>(PlayerController, AnnoucementClass);
-		AnnoucementOverlay->AddToViewport();
+		AnnouncementOverlay = CreateWidget<UAnnoucement>(PlayerController, AnnoucementClass);
+		AnnouncementOverlay->AddToViewport();
 	}
 }
 

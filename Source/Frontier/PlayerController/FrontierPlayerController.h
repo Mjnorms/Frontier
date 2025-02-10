@@ -19,9 +19,10 @@ private:
 
 	virtual void Tick(float DeltaTime) override;
 
-	float MatchTime = 0.f;
-	float WarmupTime = 0.f;
 	float LevelStartingTime = 0.f;
+	float WarmupTime = 0.f;
+	float MatchTime = 0.f;
+	float CooldownTime = 0.f;
 	int CountDownInt = 0;
 	void SetHUDTime();
 	void PollInit();
@@ -60,7 +61,7 @@ protected:
 	void ServerCheckMatchState();
 
 	UFUNCTION(Client, Reliable)
-	void ClientJoinMidGame(FName StateOfMatch, float Warmup, float Match, float StartingTime);
+	void ClientJoinMidGame(FName StateOfMatch, float Warmup, float Match, float StartingTime, float Cooldown);
 
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;	// bind replicated props
@@ -72,7 +73,7 @@ public:
 	void SetHUDWeaponAmmo(int32 Ammo);
 	void SetHUDCarriedAmmo(int32 Ammo);
 	void SetHUDMatchCountdown(float CountdownTime);
-	void SetHUDAnnoucementCountdown(float AnnoucementTime);
+	void SetHUDAnnouncementCountdown(float AnnoucementTime);
 	void DisplayDeathNotif();
 	void HideDeathNotif();
 

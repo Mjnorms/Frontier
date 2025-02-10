@@ -28,6 +28,8 @@ public:
 	virtual void PlayerEliminated(class APlayerCharacter* ElimdCharacter, class AFrontierPlayerController* VictimController, AFrontierPlayerController* AttackerController);
 	virtual void RequestRespawn(class ACharacter* ElimdCharacter, AController* ElimdController);
 
+	void SetMatchState_cmd(FName NewMatchState);
+
 	UPROPERTY(EditDefaultsOnly)
 	float WarmupTime = 10.f;
 	UPROPERTY(EditDefaultsOnly)
@@ -36,6 +38,11 @@ public:
 	float CooldownTime = 15.f;
 
 	float LevelStartingTime = 0.f;
+
+
+	// Console command to change match state
+	UFUNCTION(Exec)
+	void SMS(FName NewState);
 
 protected:
 	virtual void BeginPlay() override;

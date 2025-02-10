@@ -17,7 +17,7 @@ class FRONTIER_API UAnnoucement : public UUserWidget
 
 public:
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* AnnoucementText = nullptr;
+	class UTextBlock* AnnouncementText = nullptr;
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* WarmupTime = nullptr;
 	UPROPERTY(meta = (BindWidget))

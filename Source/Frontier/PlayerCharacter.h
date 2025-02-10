@@ -76,6 +76,7 @@ protected:
 	void ReloadPressed(const FInputActionValue& Value);
 	void AimPressed(const FInputActionValue& Value);
 	void FirePressed(const FInputActionValue& Value);
+	void SkipPressed(const FInputActionValue& Value);
 	
 	void AimOffset(float dt);
 

@@ -8,6 +8,7 @@
 #include "GameFramework/PlayerStart.h"
 #include "Frontier/PlayerState/BlasterPlayerState.h"
 
+
 namespace MatchState
 {
 	const FName Cooldown = FName("Cooldown");
@@ -95,5 +96,19 @@ void ABlasterGameMode::RequestRespawn(ACharacter* ElimdCharacter, AController* E
 		UGameplayStatics::GetAllActorsOfClass(this, APlayerStart::StaticClass(), StartActors);
 		int32 RandSelection = FMath::RandRange(0, StartActors.Num() - 1);
 		RestartPlayerAtPlayerStart(ElimdController, StartActors[RandSelection]);
+	}
+}
+
+
+void ABlasterGameMode::SMS(FName NewState)
+{
+	if (HasAuthority()) // Ensure only the server can change match states
+	{
+		SetMatchState(NewState);
+		UE_LOG(LogTemp, Log, TEXT("Match state changed to: %s"), *NewState.ToString());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Only the server can change match state."));
 	}
 }
