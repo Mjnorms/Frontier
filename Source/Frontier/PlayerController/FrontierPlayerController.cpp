@@ -11,6 +11,7 @@
 #include "Components/TextBlock.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
+#include "Frontier/PlayerCharacter.h"
 
 void AFrontierPlayerController::BeginPlay()
 {
@@ -298,6 +299,11 @@ void AFrontierPlayerController::HandleCooldown()
 			PlayerHUD->AnnouncementOverlay->AnnouncementText->SetText(FText::FromString(AnnouncementText));
 			PlayerHUD->AnnouncementOverlay->InfoText->SetText(FText());
 		}
+	}
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->bDisableGameplay = true;
 	}
 }
 

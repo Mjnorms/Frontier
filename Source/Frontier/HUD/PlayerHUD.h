@@ -52,6 +52,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 private:
+	UPROPERTY()
 	FHUDPackage HUDPackage;
 	UPROPERTY(EditAnywhere, Category = "Crosshairs")
 	float CrosshairSpreadMax = 16.f;

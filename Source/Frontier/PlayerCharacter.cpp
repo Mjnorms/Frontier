@@ -71,6 +71,7 @@ void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 	DOREPLIFETIME_CONDITION(APlayerCharacter, OverlappingWeapon, COND_OwnerOnly);
 	DOREPLIFETIME(APlayerCharacter, Health);
+	DOREPLIFETIME(APlayerCharacter, bDisableGameplay);
 }
 
 void APlayerCharacter::PostInitializeComponents()
@@ -163,14 +164,9 @@ void APlayerCharacter::MultiCastElim_Implementation()
 	InitializeDissolveMaterialParameters();
 	StartDissolve();
 
-	// Disable player movement + set ammo HUD
 	GetCharacterMovement()->DisableMovement();
 	GetCharacterMovement()->StopMovementImmediately();
-	if (FrontierPlayerController)
-	{
-		DisableInput(FrontierPlayerController);
-		FrontierPlayerController->SetHUDWeaponAmmo(0);
-	}
+	bDisableGameplay = true;
 
 	// Disable Collision
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -178,6 +174,12 @@ void APlayerCharacter::MultiCastElim_Implementation()
 
 	// Display Death Notif
 	DisplayDeathNotification();
+
+	// Destroy equipped wep
+	if (Combat && Combat->EquippedWeapon)
+	{
+		Combat->EquippedWeapon->Destroy();
+	}
 }
 
 void APlayerCharacter::InitializeDissolveMaterialParameters()
@@ -306,6 +308,7 @@ void APlayerCharacter::InitControllerMappingContext()
 
 void APlayerCharacter::Move(const FInputActionValue& Value)
 {
+	if (bDisableGameplay) return;
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
@@ -342,6 +345,7 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 
 void APlayerCharacter::EquipPressed()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		if (HasAuthority())
@@ -357,6 +361,7 @@ void APlayerCharacter::EquipPressed()
 
 void APlayerCharacter::CrouchPressed(const FInputActionValue& Value)
 {
+	if (bDisableGameplay) return;
 	if (Value[0]) // Pressed
 	{
 		Crouch();
@@ -369,6 +374,7 @@ void APlayerCharacter::CrouchPressed(const FInputActionValue& Value)
 
 void APlayerCharacter::ReloadPressed(const FInputActionValue& Value)
 {
+	if (bDisableGameplay) return;
 	if (Value[0]) // Pressed
 	{
 		Combat->Reload();
@@ -377,6 +383,7 @@ void APlayerCharacter::ReloadPressed(const FInputActionValue& Value)
 
 void APlayerCharacter::AimPressed(const FInputActionValue& Value)
 {
+	if (bDisableGameplay) return;
 	if (!Combat || !Combat->EquippedWeapon) return;
 
 	if (Value[0]) // Pressed
@@ -391,6 +398,7 @@ void APlayerCharacter::AimPressed(const FInputActionValue& Value)
 
 void APlayerCharacter::FirePressed(const FInputActionValue& Value)
 {
+	if (bDisableGameplay) return;
 	if (!Combat || !Combat->EquippedWeapon) return;
 
 	if (Value[0]) // Pressed

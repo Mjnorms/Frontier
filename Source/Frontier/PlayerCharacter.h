@@ -44,6 +44,9 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MultiCastElim();
 
+	UPROPERTY(Replicated)
+	bool bDisableGameplay = false;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -179,4 +182,6 @@ public:  // Getters + Setters
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FVector GetHitTarget() const;
 	ECombatState GetCombatState() const;
+	FORCEINLINE UCombatComponent* GetCombat() const { return Combat; }
+	FORCEINLINE bool GetDisableGameplay() const { return bDisableGameplay; }
 };
