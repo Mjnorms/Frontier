@@ -7,6 +7,7 @@
 #include "Frontier/HUD/Annoucement.h"
 #include "Frontier/GameMode/BlasterGameMode.h"
 #include "Frontier/PlayerState/BlasterPlayerState.h"
+#include "Frontier/GameState/BlasterGameState.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Net/UnrealNetwork.h"
@@ -295,9 +296,35 @@ void AFrontierPlayerController::HandleCooldown()
 		if (bHUDValid)
 		{
 			PlayerHUD->AnnouncementOverlay->SetVisibility(ESlateVisibility::Visible);
+
+			// Header Text
 			FString AnnouncementText("New Match Starts In:");
 			PlayerHUD->AnnouncementOverlay->AnnouncementText->SetText(FText::FromString(AnnouncementText));
-			PlayerHUD->AnnouncementOverlay->InfoText->SetText(FText());
+
+			// Info Text
+			ABlasterGameState* BlasterGameState = Cast<ABlasterGameState>(UGameplayStatics::GetGameState(this));
+			ABlasterPlayerState* BlasterPlayerState = GetPlayerState <ABlasterPlayerState>();
+			FString InfoTextString = "";
+			if (BlasterGameState && BlasterPlayerState)
+			{
+				TArray<ABlasterPlayerState*> TopPlayers = BlasterGameState->TopScoringPlayers;
+				if		(TopPlayers.Num() == 0)											InfoTextString = FString("No Winner");
+				else if (TopPlayers.Num() == 1 && TopPlayers[0] == BlasterPlayerState)  InfoTextString = FString("You Are The WINNER");
+				else if (TopPlayers.Num() == 1)											InfoTextString = FString::Printf(TEXT("Winner:/n%s"), *TopPlayers[0]->GetPlayerName());
+				else if (TopPlayers.Num() >  1)
+				{
+					InfoTextString = FString("Players tied for the win:\n");
+					for (auto TiedPlayer : TopPlayers)
+					{
+						InfoTextString.Append(FString::Printf(TEXT("%s\n"), *TiedPlayer->GetPlayerName()));
+					}
+				}
+			}
+			else
+			{
+				InfoTextString = "No Winner/nInvalid State";
+			}
+			PlayerHUD->AnnouncementOverlay->InfoText->SetText(FText::FromString(InfoTextString));
 		}
 	}
 	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetPawn());

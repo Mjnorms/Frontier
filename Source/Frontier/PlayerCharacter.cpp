@@ -10,6 +10,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Controller.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -63,6 +64,19 @@ APlayerCharacter::APlayerCharacter()
 	MinNetUpdateFrequency = 33.f;
 
 	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
+}
+
+void APlayerCharacter::Destroyed()
+{
+	Super::Destroyed();
+
+	// Destroy equipped wep if not in progress
+	ABlasterGameMode* BlasterGameMode = Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this));
+	bool bMatchNotInProgress = BlasterGameMode && BlasterGameMode->GetMatchState() != MatchState::InProgress;
+	if (Combat && Combat->EquippedWeapon && bMatchNotInProgress)
+	{
+		Combat->EquippedWeapon->Destroy();
+	}
 }
 
 void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -174,12 +188,6 @@ void APlayerCharacter::MultiCastElim_Implementation()
 
 	// Display Death Notif
 	DisplayDeathNotification();
-
-	// Destroy equipped wep
-	if (Combat && Combat->EquippedWeapon)
-	{
-		Combat->EquippedWeapon->Destroy();
-	}
 }
 
 void APlayerCharacter::InitializeDissolveMaterialParameters()

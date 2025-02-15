@@ -6,6 +6,7 @@
 #include "Frontier/PlayerController/FrontierPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
+#include "Frontier/GameState/BlasterGameState.h"
 #include "Frontier/PlayerState/BlasterPlayerState.h"
 
 
@@ -76,9 +77,14 @@ void ABlasterGameMode::PlayerEliminated(APlayerCharacter* ElimdCharacter, AFront
 	ABlasterPlayerState* AttackerPlayerState = AttackerController ? Cast<ABlasterPlayerState>(AttackerController->PlayerState) : nullptr;
 	ABlasterPlayerState* VictimPlayerState = VictimController ? Cast<ABlasterPlayerState>(VictimController->PlayerState) : nullptr;
 
+	ABlasterGameState* BlasterGameState = GetGameState<ABlasterGameState>();
+
 	if (AttackerPlayerState && AttackerPlayerState != VictimPlayerState)
 	{
 		AttackerPlayerState->AddToScore(1.f);
+
+		if (BlasterGameState)
+			BlasterGameState->UpdateTopScore(AttackerPlayerState);
 	}
 	if (VictimPlayerState)
 	{

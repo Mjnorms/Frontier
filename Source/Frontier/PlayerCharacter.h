@@ -27,6 +27,7 @@ class FRONTIER_API APlayerCharacter : public ACharacter, public IInteractWithCro
 	GENERATED_BODY()
 public:
 	APlayerCharacter();
+	void Destroyed() override;
 
 	virtual void Tick(float DeltaTime) override;
 
