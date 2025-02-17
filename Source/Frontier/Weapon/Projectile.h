@@ -35,11 +35,11 @@ private:
 
 
 	UPROPERTY(EditAnywhere)
-	class UParticleSystem* Tracer;
-	class UParticleSystemComponent* TracerComponent;
+	class UNiagaraSystem* Tracer;
+	class UNiagaraComponent* TracerComponent;
 
 	UPROPERTY(EditAnywhere)
-	class UParticleSystem* ImpactFX;
+	class UNiagaraSystem* ImpactFX;
 	UPROPERTY(EditAnywhere)
 	class USoundCue* ImpactSound;
 };

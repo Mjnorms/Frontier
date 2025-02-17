@@ -10,6 +10,9 @@
 #include "Particles/ParticleSystem.h"
 #include "Frontier/PlayerCharacter.h"
 #include "Frontier/Frontier.h"
+#include "NiagaraSystem.h"          // For UNiagaraSystem
+#include "NiagaraComponent.h"       // For UNiagaraComponent
+#include "NiagaraFunctionLibrary.h" // For SpawnSystemAtLocation and SpawnSystemAttached
 
 AProjectile::AProjectile()
 {
@@ -34,14 +37,23 @@ void AProjectile::BeginPlay()
 
 	if (Tracer)
 	{
-		TracerComponent = UGameplayStatics::SpawnEmitterAttached(
-			Tracer,
-			CollisionBox,
-			FName(),
-			GetActorLocation(),
-			GetActorRotation(),
-			EAttachLocation::KeepWorldPosition
-		);
+		//TracerComponent = UGameplayStatics::SpawnEmitterAttached(
+		//	Tracer,
+		//	CollisionBox,
+		//	FName(),
+		//	GetActorLocation(),
+		//	GetActorRotation(),
+		//	EAttachLocation::KeepWorldPosition
+		//);
+
+		TracerComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
+			Tracer, 
+			CollisionBox, 
+			FName(), 
+			GetActorLocation(), 
+			GetActorRotation(), 
+			EAttachLocation::KeepWorldPosition, 
+			true);
 	}
 	if (HasAuthority()) //is server
 	{
@@ -64,7 +76,7 @@ void AProjectile::Destroyed()
 	// Spawn particle system
 	if (ImpactFX)
 	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactFX, GetActorTransform());
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ImpactFX, GetActorLocation());
 	}
 	// impact sound
 	if (ImpactSound)
