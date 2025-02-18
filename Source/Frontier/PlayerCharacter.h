@@ -55,23 +55,23 @@ protected:
 
 	// Input
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	UInputMappingContext* PlayerMappingContext;
+	UInputMappingContext* PlayerMappingContext = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	UInputAction* MoveAction;
+	UInputAction* MoveAction = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	UInputAction* JumpAction;
+	UInputAction* JumpAction = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	UInputAction* LookAction;
+	UInputAction* LookAction = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	UInputAction* EquipAction;
+	UInputAction* EquipAction = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	UInputAction* CrouchAction;
+	UInputAction* CrouchAction = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	UInputAction* AimAction;
+	UInputAction* AimAction = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* FireAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	UInputAction* ReloadAction;
+	UInputAction* ReloadAction = nullptr;
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
@@ -91,16 +91,16 @@ protected:
 	void InitHUD_Poll();
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
-	USpringArmComponent* CameraBoom;
+	USpringArmComponent* CameraBoom = nullptr;
 
 	UPROPERTY(VisibleAnywhere, Category = Camera)
-	UCameraComponent* FollowCamera;
+	UCameraComponent* FollowCamera = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UWidgetComponent* OverheadWidget;
+	class UWidgetComponent* OverheadWidget = nullptr;
 
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
-	class AWeapon* OverlappingWeapon;
+	class AWeapon* OverlappingWeapon = nullptr;
 
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);
@@ -156,7 +156,7 @@ private:
 
 	// Elim Dissolve
 	UPROPERTY(VisibleAnywhere)
-	UTimelineComponent* DissolveTimeline;
+	UTimelineComponent* DissolveTimeline = nullptr;
 	FOnTimelineFloat DissolveTrack;
 	UFUNCTION()
 	void UpdateDissolveMaterial(float DissolveValue);

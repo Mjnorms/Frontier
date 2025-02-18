@@ -54,6 +54,20 @@ void AFrontierPlayerController::SetHUDTime()
 	else if (MatchState == MatchState::InProgress)	TimeLeft = WarmupTime + MatchTime  - GetServerTime() + LevelStartingTime;
 	else if (MatchState == MatchState::Cooldown)	TimeLeft = CooldownTime + WarmupTime + MatchTime  - GetServerTime() + LevelStartingTime;
 
+	// FIX for potential future time sync problems
+	//if (HasAuthority())
+	//{
+	//	if (BlasterGameMode == nullptr)
+	//	{
+	//		BlasterGameMode = Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this));
+	//		LevelStartingTime = BlasterGameMode->LevelStartingTime;
+	//	}
+	//	BlasterGameMode = BlasterGameMode == nullptr ? Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this)) : BlasterGameMode;
+	//	if (BlasterGameMode)
+	//	{
+	//		SecondsLeft = FMath::CeilToInt(BlasterGameMode->GetCountdownTime() + LevelStartingTime);
+	//	}
+	//}
 
 	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
 	if (CountDownInt != SecondsLeft)

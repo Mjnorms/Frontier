@@ -28,18 +28,18 @@ protected:
 
 private:
 	UPROPERTY(EditAnywhere)
-	class UBoxComponent* CollisionBox;
+	class UBoxComponent* CollisionBox = nullptr;
 
 	UPROPERTY(VisibleAnywhere)
-	class UProjectileMovementComponent* ProjectileMovementComponent;
+	class UProjectileMovementComponent* ProjectileMovementComponent = nullptr;
 
 
 	UPROPERTY(EditAnywhere)
-	class UNiagaraSystem* Tracer;
-	class UNiagaraComponent* TracerComponent;
+	class UNiagaraSystem* Tracer = nullptr;
+	class UNiagaraComponent* TracerComponent = nullptr;
 
 	UPROPERTY(EditAnywhere)
-	class UNiagaraSystem* ImpactFX;
+	class UNiagaraSystem* ImpactFX = nullptr;
 	UPROPERTY(EditAnywhere)
-	class USoundCue* ImpactSound;
+	class USoundCue* ImpactSound = nullptr;
 };

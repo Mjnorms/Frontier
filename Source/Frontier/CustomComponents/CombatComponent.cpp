@@ -252,6 +252,26 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& OutHitResult)
 		return;
 	}
 
+
+	FVector Start = CameraWorldPosition;
+
+	if (PlayerCharacter)
+	{
+		float DistanceToCharacter = (PlayerCharacter->GetActorLocation() - Start).Size();
+		Start += CameraWorldDirection * (DistanceToCharacter + 100.f);
+	}
+
+	FVector End = Start + CameraWorldDirection * TRACE_LENGTH;
+
+	GetWorld()->LineTraceSingleByChannel(
+		OutHitResult,
+		Start,
+		End,
+		ECollisionChannel::ECC_Visibility
+	);
+
+
+	/*
 	// 3. Determine the starting point for our trace from the weapon's perspective.
 	//    If we have an equipped weapon with a "MuzzleFlash" socket, use that location.
 	//    Otherwise, adjust from the camera position. Note: Using the player's actor location
@@ -309,6 +329,7 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& OutHitResult)
 		DrawDebugSphere(GetWorld(), OutHitResult.ImpactPoint, 12.f, 12, FColor::Red);
 	}
 
+	*/
 	// 6. Update HUD crosshair color based on what was hit (e.g., change to red if the hit actor
 	//    implements a specific interaction interface)
 	if (OutHitResult.GetActor() && OutHitResult.GetActor()->Implements<UInteractWithCrosshairInterface>())

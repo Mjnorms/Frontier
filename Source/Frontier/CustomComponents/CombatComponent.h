@@ -28,6 +28,8 @@ public:
 	void EquipWeapon(class AWeapon* WeaponToEquip);
 	void Reload();
 
+	FORCEINLINE void ClearEquippedWeapon() { EquippedWeapon = nullptr; }
+
 protected:
 	virtual void BeginPlay() override;
 	void SetAiming(bool bIsAiming);
@@ -67,7 +69,7 @@ private:
 	class APlayerHUD* HUD = nullptr;
 	
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
-	AWeapon* EquippedWeapon;	
+	AWeapon* EquippedWeapon = nullptr;	
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
 

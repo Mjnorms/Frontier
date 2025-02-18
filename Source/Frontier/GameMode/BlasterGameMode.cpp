@@ -4,6 +4,7 @@
 #include "BlasterGameMode.h"
 #include "Frontier/PlayerCharacter.h"
 #include "Frontier/PlayerController/FrontierPlayerController.h"
+#include "Frontier/CustomComponents/CombatComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
 #include "Frontier/GameState/BlasterGameState.h"
@@ -70,6 +71,23 @@ void ABlasterGameMode::BeginPlay()
 	Super::BeginPlay();
 
 	LevelStartingTime = GetWorld()->GetTimeSeconds();
+}
+
+
+void ABlasterGameMode::RestartGame()
+{
+
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		TObjectPtr<AFrontierPlayerController> BPlayerController = Cast<AFrontierPlayerController>(*It);
+
+		BPlayerController->OnMatchStateSet(MatchState);
+
+		TObjectPtr<APlayerCharacter> BlasterCharacter = Cast<APlayerCharacter>(BPlayerController->GetCharacter());
+		BlasterCharacter->GetCombat()->ClearEquippedWeapon();
+	}
+
+	Super::RestartGame();
 }
 
 void ABlasterGameMode::PlayerEliminated(APlayerCharacter* ElimdCharacter, AFrontierPlayerController* VictimController, AFrontierPlayerController* AttackerController)

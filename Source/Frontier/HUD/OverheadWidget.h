@@ -15,7 +15,7 @@ class FRONTIER_API UOverheadWidget : public UUserWidget
 	GENERATED_BODY()
 public:
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* DisplayText;
+	class UTextBlock* DisplayText = nullptr;
 
 	void SetDisplayText(FString Text);
 

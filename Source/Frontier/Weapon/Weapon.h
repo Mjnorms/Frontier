@@ -57,10 +57,10 @@ protected:
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
-	USkeletalMeshComponent* WeaponMesh;
+	USkeletalMeshComponent* WeaponMesh = nullptr;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
-	class USphereComponent* AreaSphere;
+	class USphereComponent* AreaSphere = nullptr;
 
 	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category = "Weapon Properties")
 	EWeaponState WeaponState;
@@ -69,10 +69,10 @@ private:
 	void OnRep_WeaponState();
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
-	class UWidgetComponent* PickupWidget;
+	class UWidgetComponent* PickupWidget = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
-	class UAnimationAsset* FireAnimation;
+	class UAnimationAsset* FireAnimation = nullptr;
 
 	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_Ammo, Category = "Ammo")
 	int32 Ammo;
@@ -100,15 +100,15 @@ private:
 public:
 	// Crosshairs
 	UPROPERTY(EditAnywhere, Category = "Crosshairs")
-	class UTexture2D* CrosshairsCenter;
+	class UTexture2D* CrosshairsCenter = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Crosshairs")
-	class UTexture2D* CrosshairsLeft;
+	class UTexture2D* CrosshairsLeft = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Crosshairs")
-	class UTexture2D* CrosshairsRight;
+	class UTexture2D* CrosshairsRight = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Crosshairs")
-	class UTexture2D* CrosshairsTop;
+	class UTexture2D* CrosshairsTop = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Crosshairs")
-	class UTexture2D* CrosshairsBottom;
+	class UTexture2D* CrosshairsBottom = nullptr;
 
 	// Aiming FOV
 	UPROPERTY(EditAnywhere, Category = "Aiming")

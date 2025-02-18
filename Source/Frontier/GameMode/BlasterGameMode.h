@@ -25,6 +25,8 @@ public:
 	void Tick(float DeltaTime) override;
 
 
+	void RestartGame() override;
+
 	virtual void PlayerEliminated(class APlayerCharacter* ElimdCharacter, class AFrontierPlayerController* VictimController, AFrontierPlayerController* AttackerController);
 	virtual void RequestRespawn(class ACharacter* ElimdCharacter, AController* ElimdController);
 
