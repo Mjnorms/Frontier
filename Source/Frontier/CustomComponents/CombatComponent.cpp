@@ -270,6 +270,18 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& OutHitResult)
 		ECollisionChannel::ECC_Visibility
 	);
 
+	// If nothing was hit, assume the aim is at the far end.
+	if (!OutHitResult.bBlockingHit)
+	{
+		OutHitResult.ImpactPoint = End;
+	}
+
+	// Optionally, draw a debug sphere at the final impact point
+	if (AimingDebugDraw)
+	{
+		DrawDebugSphere(GetWorld(), OutHitResult.ImpactPoint, 12.f, 12, FColor::Red);
+	}
+
 
 	/*
 	// 3. Determine the starting point for our trace from the weapon's perspective.

@@ -324,7 +324,7 @@ void AFrontierPlayerController::HandleCooldown()
 				TArray<ABlasterPlayerState*> TopPlayers = BlasterGameState->TopScoringPlayers;
 				if		(TopPlayers.Num() == 0)											InfoTextString = FString("No Winner");
 				else if (TopPlayers.Num() == 1 && TopPlayers[0] == BlasterPlayerState)  InfoTextString = FString("You Are The WINNER");
-				else if (TopPlayers.Num() == 1)											InfoTextString = FString::Printf(TEXT("Winner:/n%s"), *TopPlayers[0]->GetPlayerName());
+				else if (TopPlayers.Num() == 1)											InfoTextString = FString::Printf(TEXT("Winner:\n%s"), *TopPlayers[0]->GetPlayerName());
 				else if (TopPlayers.Num() >  1)
 				{
 					InfoTextString = FString("Players tied for the win:\n");
@@ -336,7 +336,7 @@ void AFrontierPlayerController::HandleCooldown()
 			}
 			else
 			{
-				InfoTextString = "No Winner/nInvalid State";
+				InfoTextString = "No Winner\nInvalid State";
 			}
 			PlayerHUD->AnnouncementOverlay->InfoText->SetText(FText::FromString(InfoTextString));
 		}

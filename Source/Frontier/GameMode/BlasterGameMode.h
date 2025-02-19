@@ -33,9 +33,9 @@ public:
 	void SetMatchState_cmd(FName NewMatchState);
 
 	UPROPERTY(EditDefaultsOnly)
-	float WarmupTime = 10.f;
+	float WarmupTime = 5.f;
 	UPROPERTY(EditDefaultsOnly)
-	float MatchTime = 120.f;
+	float MatchTime = 20.f;
 	UPROPERTY(EditDefaultsOnly)
 	float CooldownTime = 15.f;
 
