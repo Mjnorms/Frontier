@@ -38,7 +38,7 @@ def compile_change_message(changes):
     """
     Build a commit message from the list of Perforce changes.
     """
-    lines = ["Perforce changes since last push:"]
+    lines = ["Perforce changes since last push:\n"]
     if not changes:
         lines.append("No new changes.")
     else:
