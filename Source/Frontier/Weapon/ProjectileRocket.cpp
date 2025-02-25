@@ -12,7 +12,19 @@ void AProjectileRocket::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 		AController* FiringController = FiringPawn->GetController();
 		if (FiringController)
 		{
-			UGameplayStatics::ApplyRadialDamageWithFalloff(this, Damage, Damage / 2.f, GetActorLocation(), 200.f, 500.f, 1.f, UDamageType::StaticClass(), TArray<AActor*>(), this);
+			UGameplayStatics::ApplyRadialDamageWithFalloff(
+				this,						// World context object
+				Damage,						// BaseDamage
+				10.f,						// MinimumDamage
+				GetActorLocation(),			// Origin
+				200.f,						// DamageInnerRadius
+				500.f,						// DamageOuterRadius
+				1.f,						// DamageFalloff
+				UDamageType::StaticClass(), // DamageTypeClass
+				TArray<AActor*>(),			// IgnoreActors
+				this,						// DamageCauser
+				FiringController			// InstigatorController
+			);
 		}
 	}
 
