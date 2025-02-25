@@ -86,3 +86,4 @@ ExtraPacks/*
 .p4config.txt
 .p4
 .p4qt
+p4v_scripts/sync_log.txt
